@@ -2,1094 +2,1187 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-<meta name="theme-color" content="#0A1628"/>
-<meta name="description" content="Send the American Promise and Trust Act to your representatives in 60 seconds."/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#05101f"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="1Promise"/>
+<meta name="description" content="Contact every single one of your representatives about the American Promise Act in under 60 seconds. Join thousands standing up for America."/>
+<meta property="og:title" content="1Promise — Make Congress Act in 60 Seconds"/>
+<meta property="og:description" content="Postal banking. Clean water. $25 min wage. No one above the law. Send it to your reps right now."/>
+<meta property="og:type" content="website"/>
 <link rel="manifest" href="manifest.json"/>
 <link rel="apple-touch-icon" href="icon-192.svg"/>
 <title>1Promise — Make Congress Act</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500&display=swap" rel="stylesheet"/>
-
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
-:root {
-  --navy: #0A1628;
-  --navy-mid: #112240;
-  --navy-light: #1d3461;
-  --gold: #F5A623;
-  --gold-dim: #c4841a;
-  --white: #F8F4EC;
-  --off-white: #d4cfc6;
-  --red: #C0392B;
-  --green: #27AE60;
-  --border: rgba(245,166,35,0.25);
-  --radius: 4px;
+/* ═══════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:      #05101f;
+  --bg2:     #0b1e35;
+  --bg3:     #112644;
+  --gold:    #f2a100;
+  --gold2:   #ffd166;
+  --red:     #e63946;
+  --green:   #2ec4b6;
+  --blue:    #1d6fa4;
+  --cream:   #f0ead8;
+  --muted:   #7a96b0;
+  --dim:     rgba(240,209,102,.14);
+  --bdr:     rgba(242,161,0,.18);
+  --r:       8px;
+  --shadow:  0 4px 32px rgba(0,0,0,.5);
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-html, body {
-  height: 100%;
-  background: var(--navy);
-  color: var(--white);
-  font-family: 'Barlow', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent;}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--cream);
+  min-height:100dvh;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
 }
 
-/* ── GRAIN OVERLAY ── */
-body::before {
-  content: '';
-  position: fixed; inset: 0; z-index: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events: none;
-  opacity: 0.4;
-}
+/* ── CANVAS BACKGROUND ── */
+#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.6;}
 
-/* ── STAR FIELD ── */
-.stars {
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  overflow: hidden;
-}
-.star {
-  position: absolute;
-  background: var(--gold);
-  border-radius: 50%;
-  animation: twinkle var(--dur, 3s) ease-in-out infinite;
-  animation-delay: var(--del, 0s);
-  opacity: 0.15;
-}
-@keyframes twinkle {
-  0%,100% { opacity: 0.05; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(1.3); }
-}
+/* ── WRAPPER ── */
+#app{position:relative;z-index:1;max-width:540px;margin:0 auto;padding-bottom:80px;}
 
-/* ── LAYOUT ── */
-#app {
-  position: relative; z-index: 1;
-  max-width: 480px;
-  margin: 0 auto;
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  padding: 0 0 40px;
+/* ── URGENCY BANNER ── */
+.urgency{
+  background:var(--red);
+  color:#fff;
+  text-align:center;
+  padding:10px 16px;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:15px;
+  letter-spacing:2px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
 }
+.urgency-dot{width:8px;height:8px;border-radius:50%;background:#fff;animation:blink 1s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
 
-/* ── HEADER ── */
-header {
-  text-align: center;
-  padding: 36px 24px 28px;
-  border-bottom: 1px solid var(--border);
-  position: relative;
+/* ── HERO ── */
+.hero{
+  text-align:center;
+  padding:52px 20px 36px;
+  position:relative;
 }
-.wordmark {
-  font-family: 'Playfair Display', serif;
-  font-size: 52px;
-  font-weight: 900;
-  letter-spacing: -2px;
-  line-height: 1;
-  color: var(--white);
+.hero::after{
+  content:'';
+  position:absolute;bottom:0;left:10%;right:10%;
+  height:1px;
+  background:linear-gradient(90deg,transparent,var(--bdr),transparent);
 }
-.wordmark span {
-  color: var(--gold);
+.hero-flag{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(242,161,0,.1);
+  border:1px solid var(--bdr);
+  border-radius:30px;padding:5px 16px;
+  font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:22px;
 }
-.tagline {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-top: 6px;
-  opacity: 0.85;
+.logo{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:100px;
+  letter-spacing:-3px;
+  line-height:.9;
+  background:linear-gradient(160deg,#ffffff 0%,var(--gold2) 45%,var(--gold) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  filter:drop-shadow(0 0 60px rgba(242,161,0,.3));
+  animation:logoIn .8s cubic-bezier(.16,1,.3,1) both;
 }
-.bill-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 14px;
-  background: rgba(245,166,35,0.12);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 5px 14px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--gold);
+@keyframes logoIn{from{opacity:0;transform:translateY(20px) scale(.95)}to{opacity:1;transform:none}}
+.logo-tagline{
+  font-family:'Playfair Display',serif;
+  font-style:italic;
+  font-size:18px;
+  color:var(--muted);
+  margin-top:8px;
+  animation:fadeUp .8s .2s both;
 }
+.hero-desc{
+  font-size:14px;line-height:1.7;color:rgba(240,234,216,.65);
+  max-width:380px;margin:16px auto 0;
+  animation:fadeUp .8s .35s both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* LIVE COUNTER */
+.live-counter{
+  display:inline-flex;align-items:center;gap:10px;
+  margin-top:22px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:30px;padding:8px 18px;
+  animation:fadeUp .8s .45s both;
+}
+.lc-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.4);opacity:1}}
+.lc-num{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--cream);}
+.lc-label{font-size:12px;color:var(--muted);font-weight:500;}
+
+/* ── PROGRESS STRIP ── */
+.prog-strip{margin:0 14px;}
+.prog-track{height:4px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:4px;width:0%;transition:width .6s cubic-bezier(.34,1.56,.64,1);}
+.prog-meta{display:flex;justify-content:space-between;align-items:center;padding:6px 0 0;font-size:11px;color:var(--muted);}
+.prog-badges{display:flex;gap:6px;}
+.prog-badge{
+  padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;letter-spacing:.5px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:var(--muted);
+  transition:all .3s;
+}
+.prog-badge.done{background:rgba(46,196,182,.15);border-color:rgba(46,196,182,.3);color:var(--green);}
 
 /* ── SECTION CARDS ── */
-.card {
-  margin: 20px 16px 0;
-  background: var(--navy-mid);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
+.card{
+  margin:16px 14px 0;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:14px;
+  overflow:hidden;
+  transition:border-color .3s,box-shadow .3s;
 }
-.card-header {
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.card.lit{border-color:rgba(242,161,0,.3);box-shadow:0 0 30px rgba(242,161,0,.07);}
+.card-hd{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 18px;
+  border-bottom:1px solid rgba(255,255,255,.05);
 }
-.step-num {
-  width: 26px; height: 26px;
-  background: var(--gold);
-  color: var(--navy);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 800;
-  font-size: 14px;
-  flex-shrink: 0;
+.num{
+  width:30px;height:30px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:16px;
+  background:rgba(242,161,0,.12);color:var(--gold);
+  border:1.5px solid rgba(242,161,0,.3);flex-shrink:0;
+  transition:all .3s;
 }
-.step-num.done { background: var(--green); }
-.card-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 700;
-  font-size: 16px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+.num.done{background:var(--green);color:#fff;border-color:var(--green);}
+.card-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;}
+.card-body{padding:18px;}
+
+/* ── USER INFO ── */
+.user-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.field-wrap label{display:block;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+.field-in{
+  width:100%;background:rgba(255,255,255,.05);
+  border:1.5px solid rgba(255,255,255,.1);border-radius:var(--r);
+  padding:11px 13px;font-family:'DM Sans',sans-serif;font-size:14px;
+  color:var(--cream);outline:none;transition:border-color .2s;
 }
-.card-body { padding: 18px; }
+.field-in:focus{border-color:var(--gold);}
+.field-in::placeholder{color:var(--muted);opacity:.5;}
 
 /* ── ZIP INPUT ── */
-.zip-row {
-  display: flex;
-  gap: 10px;
+.zip-row{display:flex;gap:10px;align-items:stretch;}
+.zip-in{
+  flex:1;background:rgba(255,255,255,.06);
+  border:1.5px solid rgba(255,255,255,.12);border-radius:var(--r);
+  padding:16px;font-family:'Bebas Neue',sans-serif;
+  font-size:32px;letter-spacing:8px;color:var(--cream);
+  text-align:center;outline:none;transition:border-color .2s;
 }
-.zip-input {
-  flex: 1;
-  background: rgba(255,255,255,0.06);
-  border: 1.5px solid rgba(245,166,35,0.3);
-  border-radius: var(--radius);
-  padding: 14px 16px;
-  font-size: 24px;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 700;
-  letter-spacing: 4px;
-  color: var(--white);
-  outline: none;
-  text-align: center;
-  transition: border-color 0.2s;
-  width: 100%;
+.zip-in:focus{border-color:var(--gold);}
+.zip-in::placeholder{opacity:.2;font-size:22px;letter-spacing:3px;}
+.btn-loc{
+  background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.1);
+  border-radius:var(--r);padding:0 16px;cursor:pointer;font-size:22px;
+  color:var(--muted);transition:all .2s;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
 }
-.zip-input:focus { border-color: var(--gold); }
-.zip-input::placeholder { opacity: 0.3; font-size: 18px; letter-spacing: 2px; }
-.btn-find {
-  background: var(--gold);
-  color: var(--navy);
-  border: none;
-  border-radius: var(--radius);
-  padding: 14px 22px;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 800;
-  font-size: 15px;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
-  white-space: nowrap;
-}
-.btn-find:active { transform: scale(0.97); }
-.btn-find:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-loc:hover{background:rgba(255,255,255,.1);color:var(--cream);}
+.zip-hint{font-size:11px;color:var(--muted);text-align:center;margin-top:8px;opacity:.6;}
 
-/* ── LOADING / STATUS ── */
-.status-msg {
-  text-align: center;
-  padding: 12px;
-  font-size: 13px;
-  color: var(--off-white);
-  opacity: 0.8;
-  display: none;
-}
-.status-msg.show { display: block; }
+/* status */
+.stat-msg{display:none;text-align:center;padding:10px;font-size:13px;color:var(--muted);}
+.stat-msg.on{display:block;}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(242,161,0,.3);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.err{display:none;margin-top:10px;padding:12px 14px;border-radius:var(--r);background:rgba(230,57,70,.12);border:1px solid rgba(230,57,70,.25);font-size:13px;color:#f08080;}
+.err.on{display:block;}
 
-/* ── REPS LIST ── */
-.reps-list { display: none; }
-.reps-list.show { display: block; }
-.rep-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+/* ── REP CARDS ── */
+.rep-item{
+  display:flex;align-items:center;gap:13px;
+  padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05);
 }
-.rep-item:last-child { border-bottom: none; }
-.rep-avatar {
-  width: 42px; height: 42px;
-  border-radius: 50%;
-  background: var(--navy-light);
-  border: 2px solid var(--border);
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 800;
-  font-size: 16px;
-  color: var(--gold);
-  flex-shrink: 0;
+.rep-item:last-child{border:none;}
+.rep-av{
+  width:46px;height:46px;border-radius:50%;
+  background:var(--bg3);border:2px solid rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:18px;flex-shrink:0;
 }
-.rep-avatar.D { border-color: #3498db; color: #3498db; }
-.rep-avatar.R { border-color: #e74c3c; color: #e74c3c; }
-.rep-info { flex: 1; min-width: 0; }
-.rep-name {
-  font-weight: 600;
-  font-size: 15px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.rep-av.D{border-color:#3b82f6;color:#3b82f6;}
+.rep-av.R{border-color:#ef4444;color:#ef4444;}
+.rep-av.I{border-color:#a78bfa;color:#a78bfa;}
+.rep-info{flex:1;min-width:0;}
+.rep-name{font-weight:600;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.rep-role{font-size:11px;color:var(--muted);margin-top:2px;}
+.rep-chip{
+  font-size:10px;font-weight:700;letter-spacing:.5px;
+  padding:3px 9px;border-radius:10px;flex-shrink:0;
 }
-.rep-role {
-  font-size: 12px;
-  color: var(--off-white);
-  opacity: 0.7;
-  margin-top: 1px;
-}
-.rep-party {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 10px;
-  letter-spacing: 0.5px;
-  flex-shrink: 0;
-}
-.rep-party.D { background: rgba(52,152,219,0.15); color: #3498db; }
-.rep-party.R { background: rgba(231,76,60,0.15); color: #e74c3c; }
-.rep-party.I { background: rgba(255,255,255,0.1); color: var(--off-white); }
+.rep-chip.email{background:rgba(46,196,182,.12);color:var(--green);border:1px solid rgba(46,196,182,.2);}
+.rep-chip.form{background:rgba(242,161,0,.1);color:var(--gold);border:1px solid rgba(242,161,0,.18);}
 
-/* ── MESSAGE PREVIEW ── */
-#message-section { display: none; }
-#message-section.show { display: block; }
-.msg-box {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: var(--radius);
-  padding: 14px;
-  font-size: 13px;
-  line-height: 1.65;
-  color: var(--off-white);
-  max-height: 180px;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  font-family: 'Barlow', sans-serif;
+/* ── MESSAGE BOX ── */
+.msg-box{
+  background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.07);
+  border-radius:var(--r);padding:14px;
+  font-size:13px;line-height:1.75;color:rgba(240,234,216,.7);
+  max-height:160px;overflow-y:auto;white-space:pre-wrap;
+  font-family:'DM Sans',sans-serif;
 }
-.msg-box::-webkit-scrollbar { width: 4px; }
-.msg-box::-webkit-scrollbar-track { background: transparent; }
-.msg-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-.msg-note {
-  margin-top: 10px;
-  font-size: 11px;
-  color: var(--gold);
-  opacity: 0.75;
-  text-align: center;
-  letter-spacing: 0.5px;
-}
+.msg-box::-webkit-scrollbar{width:3px;}
+.msg-box::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px;}
+.msg-signed{margin-top:10px;font-size:12px;color:var(--green);display:flex;align-items:center;gap:6px;}
 
 /* ── ACTION BUTTONS ── */
-#actions-section { display: none; }
-#actions-section.show { display: block; }
-.actions-grid {
-  display: grid;
-  gap: 10px;
+.act-grid{display:grid;gap:10px;}
+.act{
+  display:flex;align-items:center;gap:14px;
+  padding:16px 18px;border-radius:12px;
+  border:1.5px solid transparent;
+  cursor:pointer;text-align:left;
+  transition:transform .1s,filter .15s,border-color .2s,box-shadow .2s;
+  background:rgba(255,255,255,.04);
+  position:relative;overflow:hidden;
 }
-.action-btn {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 16px 18px;
-  border-radius: var(--radius);
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  text-decoration: none;
-  transition: transform 0.1s, filter 0.15s;
-  position: relative;
-  overflow: hidden;
+.act::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.04),transparent);
+  opacity:0;transition:opacity .2s;
 }
-.action-btn::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: rgba(255,255,255,0.06);
-  opacity: 0;
-  transition: opacity 0.15s;
+.act:hover::before{opacity:1;}
+.act:hover{border-color:rgba(255,255,255,.14);filter:brightness(1.1);}
+.act:active{transform:scale(.98);}
+.act.sent{border-color:rgba(46,196,182,.4)!important;background:rgba(46,196,182,.08)!important;}
+.act.sent .act-title::after{content:' ✓';color:var(--green);}
+.act.email-act{border-color:rgba(29,111,164,.35);background:rgba(29,111,164,.08);}
+.act.phone-act{border-color:rgba(46,196,182,.25);background:rgba(46,196,182,.06);}
+.act.fax-act{border-color:rgba(168,85,247,.25);background:rgba(168,85,247,.06);}
+.act.copy-act{border-color:rgba(242,161,0,.2);background:rgba(242,161,0,.05);}
+.act-icon{font-size:28px;flex-shrink:0;line-height:1;}
+.act-body{flex:1;}
+.act-title{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:.5px;color:var(--cream);}
+.act-sub{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4;}
+.act-arr{font-size:22px;opacity:.25;flex-shrink:0;}
+
+/* ── SUCCESS SCREEN ── */
+#successScreen{
+  display:none;position:fixed;inset:0;z-index:500;
+  background:var(--bg);
+  flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:30px;
 }
-.action-btn:hover::before { opacity: 1; }
-.action-btn:active { transform: scale(0.98); }
-.action-btn.email { background: #1a3a5c; border: 1.5px solid #2d5f8c; }
-.action-btn.phone { background: #1a3d1a; border: 1.5px solid #2d6b2d; }
-.action-btn.fax   { background: #3d1a2d; border: 1.5px solid #6b2d4a; }
-.action-btn.copy  { background: #2a2a1a; border: 1.5px solid #5a5a2d; }
-.action-icon {
-  font-size: 26px;
-  flex-shrink: 0;
-  line-height: 1;
+#successScreen.on{display:flex;}
+#confettiCanvas{position:absolute;inset:0;pointer-events:none;}
+.success-icon{font-size:72px;animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.success-title{font-family:'Bebas Neue',sans-serif;font-size:60px;letter-spacing:-1px;line-height:1;margin-top:16px;background:linear-gradient(135deg,#fff,var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.success-sub{font-size:16px;color:var(--muted);margin-top:8px;max-width:320px;}
+.success-badge{
+  margin:24px 0 0;
+  background:rgba(242,161,0,.1);border:2px solid var(--gold);
+  border-radius:16px;padding:18px 28px;max-width:340px;width:100%;
 }
-.action-text { flex: 1; }
-.action-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  color: var(--white);
+.badge-title{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:var(--gold);margin-bottom:4px;}
+.badge-name{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--cream);}
+.badge-sub{font-size:12px;color:var(--muted);margin-top:4px;}
+.success-btns{display:grid;gap:10px;margin-top:20px;width:100%;max-width:340px;}
+.btn-viral{
+  width:100%;padding:15px;border-radius:12px;
+  font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1px;
+  cursor:pointer;border:none;transition:filter .15s,transform .1s;
 }
-.action-sub {
-  font-size: 12px;
-  color: var(--off-white);
-  opacity: 0.7;
-  margin-top: 2px;
+.btn-viral:active{transform:scale(.97);}
+.btn-viral.primary{background:var(--gold);color:var(--bg);}
+.btn-viral.secondary{background:rgba(255,255,255,.06);color:var(--cream);border:1.5px solid rgba(255,255,255,.12);}
+.challenge-box{
+  margin-top:16px;padding:14px;
+  background:rgba(230,57,70,.1);border:1px solid rgba(230,57,70,.25);
+  border-radius:12px;font-size:14px;line-height:1.6;max-width:340px;width:100%;
 }
-.action-arrow {
-  font-size: 18px;
-  opacity: 0.4;
-  color: var(--white);
+.challenge-box strong{color:var(--red);}
+.btn-back-to-app{
+  background:none;border:none;color:var(--muted);font-size:13px;
+  cursor:pointer;margin-top:16px;text-decoration:underline;
 }
 
-/* ── PHONE MODAL ── */
-.modal-overlay {
-  display: none;
-  position: fixed; inset: 0; z-index: 100;
-  background: rgba(0,0,0,0.75);
-  backdrop-filter: blur(4px);
-  padding: 20px;
-  align-items: flex-end;
+/* ── FORM LINKS ── */
+.form-links-box{
+  display:none;margin-top:14px;padding:14px;
+  background:rgba(242,161,0,.06);border:1px solid var(--bdr);
+  border-radius:10px;
 }
-.modal-overlay.show { display: flex; }
-.modal {
-  background: var(--navy-mid);
-  border: 1px solid var(--border);
-  border-radius: 12px 12px 8px 8px;
-  padding: 24px;
-  width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
-  animation: slideUp 0.25s ease;
+.form-links-box.on{display:block;}
+.form-links-head{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.form-link-row{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 12px;border-radius:var(--r);
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
+  margin-bottom:7px;text-decoration:none;color:var(--cream);
+  transition:background .15s;font-size:13px;
 }
-@keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-.modal-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 4px;
-}
-.modal-close {
-  float: right;
-  background: none;
-  border: none;
-  color: var(--off-white);
-  font-size: 22px;
-  cursor: pointer;
-  opacity: 0.6;
-  margin-top: -4px;
-}
-.rep-call-item {
-  margin: 14px 0;
-  padding: 14px;
-  background: rgba(255,255,255,0.04);
-  border-radius: var(--radius);
-  border: 1px solid rgba(255,255,255,0.07);
-}
-.rep-call-name { font-weight: 600; font-size: 15px; }
-.rep-call-role { font-size: 12px; opacity: 0.6; margin-bottom: 10px; }
-.btn-call {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--green);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius);
-  padding: 11px 16px;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 700;
-  font-size: 15px;
-  letter-spacing: 1px;
-  cursor: pointer;
-  text-decoration: none;
-  width: 100%;
-  justify-content: center;
-  margin-bottom: 8px;
-  transition: filter 0.15s;
-}
-.btn-call:hover { filter: brightness(1.1); }
-.call-script {
-  font-size: 12px;
-  line-height: 1.6;
-  color: var(--off-white);
-  opacity: 0.75;
-  background: rgba(0,0,0,0.2);
-  padding: 10px;
-  border-radius: var(--radius);
-  margin-top: 8px;
-  display: none;
-}
-.call-script.show { display: block; }
-.btn-script-toggle {
-  background: none; border: none;
-  color: var(--gold);
-  font-size: 12px;
-  cursor: pointer;
-  text-decoration: underline;
-  padding: 0;
-  opacity: 0.8;
-}
+.form-link-row:last-child{margin:0;}
+.form-link-row:hover{background:rgba(255,255,255,.07);}
 
-/* ── SHARE ── */
-.share-row {
-  margin: 20px 16px 0;
-  display: flex;
-  gap: 10px;
+/* ── SHARE ROW ── */
+.share-row{display:flex;gap:10px;margin:14px 14px 0;}
+.btn-share{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
+  padding:13px;border-radius:12px;
+  background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);
+  color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;
+  cursor:pointer;transition:background .15s,border-color .2s;
 }
-.btn-share {
-  flex: 1;
-  background: var(--navy-mid);
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px;
-  color: var(--gold);
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 700;
-  font-size: 15px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: background 0.15s;
-}
-.btn-share:hover { background: var(--navy-light); }
+.btn-share:hover{background:rgba(255,255,255,.08);border-color:rgba(242,161,0,.3);}
 
-/* ── ABOUT BANNER ── */
-.about-banner {
-  margin: 20px 16px 0;
-  padding: 16px;
-  background: rgba(245,166,35,0.06);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-}
-.about-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 800;
-  font-size: 13px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 8px;
-}
-.about-text {
-  font-size: 12px;
-  line-height: 1.65;
-  color: var(--off-white);
-  opacity: 0.75;
-}
-.about-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 10px;
-}
-.pill {
-  background: rgba(245,166,35,0.12);
-  border: 1px solid rgba(245,166,35,0.2);
-  border-radius: 20px;
-  padding: 4px 10px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--gold);
-  letter-spacing: 0.3px;
-}
+/* ── BILL ACCORDION ── */
+.bill-wrap{margin:16px 14px 0;background:rgba(242,161,0,.04);border:1px solid var(--bdr);border-radius:14px;overflow:hidden;}
+.bill-top{padding:18px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;}
+.bill-top-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:var(--gold);}
+.bill-pills{display:flex;flex-wrap:wrap;gap:7px;padding:0 18px;}
+.pill{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:500;transition:background .15s;}
+.pill:hover{background:rgba(255,255,255,.1);}
+.bill-detail{display:none;padding:16px 18px 18px;}
+.bill-detail.on{display:block;}
+.provision{padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.provision:last-child{border:none;}
+.prov-title{font-weight:600;font-size:14px;color:var(--cream);margin-bottom:3px;}
+.prov-desc{font-size:12.5px;color:var(--muted);line-height:1.6;}
+.pill-row{display:flex;flex-wrap:wrap;gap:7px;padding:14px 18px 18px;}
 
-/* ── FOOTER ── */
-footer {
-  text-align: center;
-  padding: 24px 16px 0;
-  font-size: 11px;
-  color: var(--off-white);
-  opacity: 0.4;
-  letter-spacing: 0.5px;
-}
+/* ── WALL ── */
+.wall-wrap{margin:16px 14px 0;}
+.wall-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.wall-title{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;}
+.wall-n{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:3px 11px;font-size:12px;color:var(--muted);}
+/* Composer */
+.composer{background:rgba(255,255,255,.03);border:1.5px solid rgba(255,255,255,.08);border-radius:14px;padding:16px;margin-bottom:14px;transition:border-color .25s;}
+.composer:focus-within{border-color:rgba(242,161,0,.35);}
+.comp-ta{width:100%;background:transparent;border:none;outline:none;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.65;resize:none;min-height:72px;}
+.comp-ta::placeholder{color:var(--muted);opacity:.55;}
+.link-prev{display:none;align-items:center;gap:8px;margin-top:8px;padding:9px 12px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.07);border-radius:var(--r);font-size:12px;color:var(--muted);}
+.link-prev.on{display:flex;}
+.img-prev-wrap{display:none;margin-top:8px;}
+.img-prev{max-height:110px;border-radius:var(--r);border:1px solid rgba(255,255,255,.08);}
+.img-rm{background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;margin-left:8px;vertical-align:middle;}
+.comp-tools{display:flex;align-items:center;gap:7px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);flex-wrap:wrap;}
+.c-tool{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:var(--muted);font-size:12px;font-weight:500;cursor:pointer;user-select:none;transition:all .15s;}
+.c-tool:hover{background:rgba(255,255,255,.1);color:var(--cream);}
+.c-tool input[type=file]{display:none;}
+.c-post{margin-left:auto;background:var(--gold);color:var(--bg);border:none;border-radius:20px;padding:7px 17px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:.5px;cursor:pointer;transition:filter .15s;}
+.c-post:hover{filter:brightness(1.1);}
+/* Posts */
+.post{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:14px;margin-bottom:10px;animation:fup .35s ease both;}
+@keyframes fup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.post-hd{display:flex;align-items:center;gap:9px;margin-bottom:9px;}
+.post-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--blue));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0;}
+.post-meta{flex:1;}
+.post-name{font-size:13px;font-weight:600;}
+.post-time{font-size:11px;color:var(--muted);}
+.post-txt{font-size:13.5px;line-height:1.65;color:rgba(240,234,216,.85);word-break:break-word;}
+.post-link{display:block;margin-top:7px;color:var(--gold);font-size:12px;text-decoration:none;opacity:.8;word-break:break-all;}
+.post-link:hover{opacity:1;}
+.post-img{margin-top:10px;border-radius:var(--r);max-width:100%;max-height:280px;object-fit:cover;border:1px solid rgba(255,255,255,.07);}
+.post-yt{margin-top:10px;border-radius:var(--r);width:100%;aspect-ratio:16/9;border:none;}
+.post-acts{display:flex;gap:14px;margin-top:10px;}
+.post-btn{background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted);padding:0;transition:color .15s;}
+.post-btn:hover{color:var(--cream);}
+.post-btn.liked{color:var(--gold);}
+.no-posts{text-align:center;padding:32px;color:var(--muted);font-size:14px;opacity:.5;}
+
+/* ── MODALS ── */
+.ovl{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);align-items:flex-end;padding:12px;}
+.ovl.on{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--bdr);border-radius:20px 20px 12px 12px;padding:24px;width:100%;max-width:540px;margin:0 auto;animation:sup .3s cubic-bezier(.34,1.56,.64,1);max-height:88dvh;overflow-y:auto;}
+@keyframes sup{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;color:var(--gold);display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.modal-x{background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer;line-height:1;padding:0;}
+/* Phone */
+.call-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:15px;margin-bottom:12px;}
+.call-name{font-weight:600;font-size:16px;}
+.call-role{font-size:12px;color:var(--muted);margin-bottom:12px;}
+.btn-call-now{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:var(--r);background:var(--green);border:none;color:var(--bg);font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1px;cursor:pointer;text-decoration:none;transition:filter .15s;margin-bottom:7px;}
+.btn-call-now:hover{filter:brightness(1.1);}
+.btn-form-link{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;border-radius:var(--r);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:var(--cream);font-size:13px;cursor:pointer;text-decoration:none;transition:background .15s;}
+.btn-form-link:hover{background:rgba(255,255,255,.1);}
+.script-tog{background:none;border:none;color:var(--gold);font-size:12px;cursor:pointer;text-decoration:underline;opacity:.7;margin-top:9px;display:block;}
+.script-box{display:none;margin-top:9px;background:rgba(0,0,0,.25);border-radius:var(--r);padding:11px;font-size:12px;line-height:1.65;color:var(--muted);}
+.script-box.on{display:block;}
+/* Fax */
+.fax-steps{list-style:none;counter-reset:fx;}
+.fax-step{counter-increment:fx;display:flex;gap:13px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.fax-step:last-child{border:none;}
+.fax-step::before{content:counter(fx);width:26px;height:26px;border-radius:50%;background:var(--gold);color:var(--bg);font-family:'Bebas Neue',sans-serif;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.fax-txt{font-size:14px;line-height:1.6;color:rgba(240,234,216,.8);}
+.fax-txt strong{color:var(--gold);}
+.btn-fax{width:100%;padding:15px;border-radius:var(--r);background:rgba(168,85,247,.15);border:1.5px solid rgba(168,85,247,.35);color:var(--cream);font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;cursor:pointer;transition:background .15s;margin-top:16px;}
+.btn-fax:hover{background:rgba(168,85,247,.25);}
 
 /* ── TOAST ── */
-.toast {
-  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
-  background: var(--green);
-  color: white;
-  padding: 12px 22px;
-  border-radius: 30px;
-  font-size: 13px;
-  font-weight: 600;
-  opacity: 0;
-  transition: opacity 0.2s, transform 0.2s;
-  z-index: 200;
-  white-space: nowrap;
-  pointer-events: none;
-}
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--green);color:var(--bg);padding:12px 24px;border-radius:30px;font-size:13px;font-weight:700;opacity:0;transition:opacity .2s,transform .2s;z-index:999;pointer-events:none;white-space:nowrap;}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
 
-/* ── ANIMATIONS ── */
-.fade-in {
-  animation: fadeIn 0.4s ease forwards;
-}
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* ── SPINNER ── */
-.spinner {
-  display: inline-block;
-  width: 16px; height: 16px;
-  border: 2px solid rgba(245,166,35,0.3);
-  border-top-color: var(--gold);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-  vertical-align: middle;
-  margin-right: 6px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ── ERROR STATE ── */
-.error-box {
-  background: rgba(192,57,43,0.15);
-  border: 1px solid rgba(192,57,43,0.4);
-  border-radius: var(--radius);
-  padding: 12px 14px;
-  font-size: 13px;
-  color: #e57373;
-  margin-top: 12px;
-  display: none;
-}
-.error-box.show { display: block; }
-
-/* ── MANUAL ENTRY ── */
-.manual-link {
-  text-align: center;
-  margin-top: 12px;
-  font-size: 12px;
-  color: var(--off-white);
-  opacity: 0.55;
-}
-.manual-link a {
-  color: var(--gold);
-  text-decoration: none;
-  opacity: 0.8;
-}
+/* ── UTILITIES ── */
+.hide{display:none!important;}
+.fade{animation:fup .4s ease both;}
+footer{text-align:center;padding:32px 16px 0;font-size:11px;color:var(--muted);opacity:.35;line-height:2;}
 </style>
 </head>
 <body>
 
-<!-- Stars -->
-<div class="stars" id="stars"></div>
+<!-- BG CANVAS -->
+<canvas id="bgCanvas"></canvas>
+
+<!-- CONFETTI CANVAS (success screen) -->
+<canvas id="confettiCanvas"></canvas>
+
+<!-- SUCCESS SCREEN -->
+<div id="successScreen">
+  <div class="success-icon">🗽</div>
+  <div class="success-title">YOU SHOWED UP.</div>
+  <div class="success-sub">Your representatives heard from you. That's how democracy works.</div>
+  <div class="success-badge">
+    <div class="badge-title">CITIZEN OF ACTION</div>
+    <div class="badge-name" id="badgeName">American Citizen</div>
+    <div class="badge-sub">Sent the American Promise &amp; Trust Act · 2026</div>
+  </div>
+  <div class="success-btns">
+    <button class="btn-viral primary" onclick="viralShare()">🔗 Share — Challenge Your Friends</button>
+    <button class="btn-viral secondary" onclick="viralTweet()">𝕏 Post on X/Twitter</button>
+  </div>
+  <div class="challenge-box">
+    <strong>⚡ The 3-Friend Challenge</strong><br/>
+    You took action. Now tag 3 people who haven't. Every rep contact they file is one more vote pressure point.
+  </div>
+  <button class="btn-back-to-app" onclick="closeSuccess()">← Back to the app</button>
+</div>
 
 <div id="app">
+<!-- URGENCY BANNER -->
+<div class="urgency">
+  <span class="urgency-dot"></span>
+  CONGRESS IN SESSION — YOUR VOICE MATTERS RIGHT NOW
+</div>
 
-  <!-- Header -->
-  <header>
-    <div class="wordmark"><span>1</span>Promise</div>
-    <div class="tagline">Make Congress Act · 60 Seconds</div>
-    <div class="bill-badge">
-      ★ American Promise &amp; Trust Act of 2026
-    </div>
-  </header>
-
-  <!-- STEP 1 — ZIP -->
-  <div class="card fade-in">
-    <div class="card-header">
-      <div class="step-num" id="step1-num">1</div>
-      <span class="card-title">Enter Your ZIP Code</span>
-    </div>
-    <div class="card-body">
-      <div class="zip-row">
-        <input type="tel" inputmode="numeric" maxlength="5"
-               pattern="[0-9]{5}"
-               class="zip-input" id="zipInput"
-               placeholder="12345"
-               aria-label="Your ZIP code"/>
-        <button class="btn-find" id="findBtn" onclick="findReps()">FIND MY REPS</button>
-      </div>
-      <div class="status-msg" id="statusMsg">
-        <span class="spinner"></span> Looking up your representatives…
-      </div>
-      <div class="error-box" id="errorBox"></div>
-      <div class="manual-link">
-        Don't know your ZIP? <a href="https://www.unitedstateszipcodes.org" target="_blank" rel="noopener">Look it up →</a>
-      </div>
-    </div>
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-flag">★ American Promise &amp; Trust Act of 2026</div>
+  <div class="logo">1Promise</div>
+  <div class="logo-tagline">Make Congress act in 60 seconds</div>
+  <div class="hero-desc">
+    Postal banking. Clean water. $25 minimum wage. No one above the law.
+    Your reps need to hear from you — right now, today.
   </div>
-
-  <!-- STEP 2 — REPS -->
-  <div class="card fade-in" id="reps-card" style="display:none">
-    <div class="card-header">
-      <div class="step-num" id="step2-num">2</div>
-      <span class="card-title">Your Representatives</span>
-    </div>
-    <div class="card-body">
-      <div class="reps-list show" id="repsList"></div>
-    </div>
-  </div>
-
-  <!-- STEP 3 — MESSAGE -->
-  <div class="card fade-in" id="message-section">
-    <div class="card-header">
-      <div class="step-num">3</div>
-      <span class="card-title">Your Message</span>
-    </div>
-    <div class="card-body">
-      <div class="msg-box" id="msgBox"></div>
-      <p class="msg-note">✦ Pre-written and ready to send. No editing required.</p>
-    </div>
-  </div>
-
-  <!-- STEP 4 — ACTIONS -->
-  <div class="card fade-in" id="actions-section">
-    <div class="card-header">
-      <div class="step-num">4</div>
-      <span class="card-title">Send — Pick Your Method</span>
-    </div>
-    <div class="card-body">
-      <div class="actions-grid">
-
-        <!-- EMAIL -->
-        <button class="action-btn email" id="emailBtn" onclick="doEmail()">
-          <span class="action-icon">✉️</span>
-          <span class="action-text">
-            <div class="action-title">Email All Reps</div>
-            <div class="action-sub">Opens your mail app · Message pre-filled</div>
-          </span>
-          <span class="action-arrow">›</span>
-        </button>
-
-        <!-- PHONE -->
-        <button class="action-btn phone" onclick="openPhoneModal()">
-          <span class="action-icon">📞</span>
-          <span class="action-text">
-            <div class="action-title">Call Each Rep</div>
-            <div class="action-sub">Script provided · Calls take 2 min</div>
-          </span>
-          <span class="action-arrow">›</span>
-        </button>
-
-        <!-- FAX via Resistbot -->
-        <button class="action-btn fax" onclick="doFax()">
-          <span class="action-icon">📠</span>
-          <span class="action-text">
-            <div class="action-title">Fax via Resistbot</div>
-            <div class="action-sub">Most reliable · Text RESIST to 50409</div>
-          </span>
-          <span class="action-arrow">›</span>
-        </button>
-
-        <!-- COPY MESSAGE -->
-        <button class="action-btn copy" onclick="copyMessage()">
-          <span class="action-icon">📋</span>
-          <span class="action-text">
-            <div class="action-title">Copy Message</div>
-            <div class="action-sub">Paste anywhere · Social, DMs, forms</div>
-          </span>
-          <span class="action-arrow">›</span>
-        </button>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- SHARE -->
-  <div class="share-row fade-in" id="shareRow" style="display:none">
-    <button class="btn-share" onclick="shareApp()">
-      🔗 Share This Tool
-    </button>
-    <button class="btn-share" onclick="shareToTwitter()">
-      𝕏 Post It
-    </button>
-  </div>
-
-  <!-- ABOUT -->
-  <div class="about-banner">
-    <div class="about-title">What This Bill Does</div>
-    <div class="about-text">
-      The American Promise and Trust Act of 2026 is a comprehensive, bipartisan people's bill. No party owns it — you do.
-    </div>
-    <div class="about-pills">
-      <span class="pill">📬 Postal Banking 4%</span>
-      <span class="pill">🚫 Ban Toxic Dyes</span>
-      <span class="pill">🎓 Cancel Student Debt</span>
-      <span class="pill">💵 $25 Min Wage</span>
-      <span class="pill">🚰 Clean Water</span>
-      <span class="pill">🗳️ End Dark Money</span>
-      <span class="pill">⚖️ No One Above the Law</span>
-      <span class="pill">🔓 Open Sealed Records</span>
-    </div>
-  </div>
-
-  <footer>
-    1Promise is a civic tool, not affiliated with any party or PAC.<br/>
-    Built for the people. Open source. Always free.
-  </footer>
-
-</div><!-- /#app -->
-
-<!-- ── PHONE MODAL ── -->
-<div class="modal-overlay" id="phoneModal" onclick="closePhoneModal(event)">
-  <div class="modal" role="dialog" aria-modal="true" aria-label="Call your representatives">
-    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;">
-      <div class="modal-title">📞 Call Your Reps</div>
-      <button class="modal-close" onclick="closePhoneModal(null, true)" aria-label="Close">✕</button>
-    </div>
-    <div id="callList"></div>
-    <p style="font-size:11px; opacity:0.45; margin-top:12px; text-align:center;">Calls take ~2 minutes. Staffers record every call.</p>
+  <div class="live-counter">
+    <span class="lc-dot"></span>
+    <span class="lc-num" id="liveNum">4,218</span>
+    <span class="lc-label">messages sent nationwide</span>
   </div>
 </div>
 
-<!-- ── TOAST ── -->
-<div class="toast" id="toast" role="alert"></div>
+<!-- PROGRESS -->
+<div class="prog-strip">
+  <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+  <div class="prog-meta">
+    <span id="progLabel">Start below — takes 60 seconds</span>
+    <div class="prog-badges">
+      <div class="prog-badge" id="pb-email">✉ Email</div>
+      <div class="prog-badge" id="pb-phone">📞 Call</div>
+      <div class="prog-badge" id="pb-fax">📠 Fax</div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 1: YOUR INFO -->
+<div class="card lit" id="s1">
+  <div class="card-hd">
+    <div class="num" id="n1">1</div>
+    <span class="card-title">Your Info</span>
+  </div>
+  <div class="card-body">
+    <div class="user-fields">
+      <div class="field-wrap">
+        <label>First Name <span style="color:var(--muted);font-size:9px;">(optional)</span></label>
+        <input class="field-in" id="fName" type="text" placeholder="Jane" autocomplete="given-name"/>
+      </div>
+      <div class="field-wrap">
+        <label>City <span style="color:var(--muted);font-size:9px;">(optional)</span></label>
+        <input class="field-in" id="fCity" type="text" placeholder="Norfolk" autocomplete="address-level2"/>
+      </div>
+    </div>
+    <div style="margin-bottom:6px;">
+      <label style="display:block;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">ZIP Code <span style="color:var(--red);font-size:9px;">REQUIRED</span></label>
+      <div class="zip-row">
+        <input class="zip-in" id="zipIn" type="tel" inputmode="numeric" maxlength="5" pattern="[0-9]{5}" placeholder="12345" aria-label="Your 5-digit ZIP code" oninput="onZipInput(this.value)"/>
+        <button class="btn-loc" onclick="useLocation()" title="Use my location">📍</button>
+      </div>
+    </div>
+    <div class="zip-hint">Type your ZIP — auto-searches at 5 digits · or tap 📍 to use your location</div>
+    <div class="stat-msg" id="statMsg"><span class="spin"></span> Finding your representatives…</div>
+    <div class="err" id="errBox"></div>
+  </div>
+</div>
+
+<!-- STEP 2: REPS -->
+<div class="card hide" id="s2">
+  <div class="card-hd">
+    <div class="num" id="n2">2</div>
+    <span class="card-title">Your Representatives</span>
+  </div>
+  <div class="card-body">
+    <div id="repsList"></div>
+    <p style="font-size:11px;color:var(--muted);margin-top:10px;opacity:.65;">House members: email pre-loaded · Senators: official forms linked (required — no public email)</p>
+  </div>
+</div>
+
+<!-- STEP 3: MESSAGE -->
+<div class="card hide" id="s3">
+  <div class="card-hd">
+    <div class="num" id="n3">3</div>
+    <span class="card-title">Your Message — Ready to Send</span>
+  </div>
+  <div class="card-body">
+    <div class="msg-box" id="msgBox"></div>
+    <div class="msg-signed" id="msgSigned" style="display:none;">✦ Signed with your name — personalized and ready.</div>
+  </div>
+</div>
+
+<!-- STEP 4: ACTIONS -->
+<div class="card hide" id="s4">
+  <div class="card-hd">
+    <div class="num" id="n4">4</div>
+    <span class="card-title">Send — Choose Your Method</span>
+  </div>
+  <div class="card-body">
+    <div class="act-grid">
+
+      <button class="act email-act" id="actEmail" onclick="doEmail()">
+        <span class="act-icon">✉️</span>
+        <span class="act-body">
+          <div class="act-title">Email All 3 Reps</div>
+          <div class="act-sub">TO: pre-filled · Subject pre-filled · Just hit Send in your mail app</div>
+        </span><span class="act-arr">›</span>
+      </button>
+
+      <button class="act phone-act" id="actPhone" onclick="openPhone()">
+        <span class="act-icon">📞</span>
+        <span class="act-body">
+          <div class="act-title">Call Each Rep</div>
+          <div class="act-sub">Tap their number · Full call script provided · ~2 min each</div>
+        </span><span class="act-arr">›</span>
+      </button>
+
+      <button class="act fax-act" id="actFax" onclick="openFax()">
+        <span class="act-icon">📠</span>
+        <span class="act-body">
+          <div class="act-title">Fax via Resistbot</div>
+          <div class="act-sub">Most effective method · Message auto-copied · Free service</div>
+        </span><span class="act-arr">›</span>
+      </button>
+
+      <button class="act copy-act" onclick="copyMsg()">
+        <span class="act-icon">📋</span>
+        <span class="act-body">
+          <div class="act-title">Copy Message</div>
+          <div class="act-sub">Paste into any contact form, DM, or social post</div>
+        </span><span class="act-arr">›</span>
+      </button>
+
+    </div>
+    <div class="form-links-box" id="formLinksBox">
+      <div class="form-links-head">📬 Official Contact Forms (especially for Senators)</div>
+      <div id="formLinksList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SHARE -->
+<div class="share-row hide" id="shareRow">
+  <button class="btn-share" onclick="doShare()">🔗 Share This Tool</button>
+  <button class="btn-share" onclick="viralTweet()">𝕏 Tweet It</button>
+</div>
+
+<!-- BILL ACCORDION -->
+<div class="bill-wrap">
+  <div class="bill-top" onclick="toggleBill()">
+    <div class="bill-top-title">📜 What This Bill Does</div>
+    <span id="billArrow" style="color:var(--gold);font-size:18px;transition:transform .3s;">▾</span>
+  </div>
+  <div class="pill-row">
+    <span class="pill">📬 Postal Banking 4%</span>
+    <span class="pill">🚫 Ban Toxic Dyes</span>
+    <span class="pill">🎓 Cancel Student Debt</span>
+    <span class="pill">💵 $25 Min Wage</span>
+    <span class="pill">⏱️ 32-Hr Work Week</span>
+    <span class="pill">🚰 Clean Water</span>
+    <span class="pill">🗳️ End Dark Money</span>
+    <span class="pill">⚖️ No One Above the Law</span>
+    <span class="pill">🔓 Open Sealed Records</span>
+    <span class="pill">👨‍👩‍👧 Family Protection</span>
+  </div>
+  <div class="bill-detail" id="billDetail">
+    <div class="provision">
+      <div class="prov-title">📬 Postal Banking at 4% Interest</div>
+      <div class="prov-desc">USPS offers free checking/savings accounts, debit cards with no overdraft fees, and loans up to $1,000 at ≤15% APR. Deposits earn 4% annually — guaranteed, no Wall Street fees.</div>
+    </div>
+    <div class="provision">
+      <div class="prov-title">🚫 Ban Toxic Food Dyes</div>
+      <div class="prov-desc">Red 40, Yellow 5, Yellow 6, Blue 1, Blue 2, Red 3, Green 3, and others banned effective Jan 1, 2028. The GRAS self-certification loophole is closed. Civil penalties up to $100K/day.</div>
+    </div>
+    <div class="provision">
+      <div class="prov-title">🎓 Cancel Student Debt & Free College</div>
+      <div class="prov-desc">All federal student loan debt cancelled. Private loans for households below 400% FPL purchased and cancelled. Payments after March 2020 refunded with interest. Community college and public university tuition-free going forward.</div>
+    </div>
+    <div class="provision">
+      <div class="prov-title">💵 $25 Minimum Wage & 32-Hour Work Week</div>
+      <div class="prov-desc">$25/hr effective January 1, 2028, indexed to 1.25× MIT Living Wage. Overtime kicks in after 32 hours with no reduction in weekly pay. Subminimum wage for tipped workers abolished.</div>
+    </div>
+    <div class="provision">
+      <div class="prov-title">🚰 Clean Water for Every Child</div>
+      <div class="prov-desc">All lead pipes identified and replaced within 10 years. PFAS manufacture/import/use banned Jan 1, 2028. No household pays more than 2% of income for water. Private equity divests from water utilities within 3 years.</div>
+    </div>
+    <div class="provision">
+      <div class="prov-title">🗳️ Get Dark Money Out of Elections</div>
+      <div class="prov-desc">6-to-1 public matching for small donors. Contributions capped at $200. Super PACs banned. All expenditures over $10K disclosed. Foreign influence prohibited.</div>
+    </div>
+    <div class="provision">
+      <div class="prov-title">⚖️ No One Is Above the Law</div>
+      <div class="prov-desc">Qualified immunity reforms. Secret immunity deals abolished. Deaths in custody investigated independently. Sealed records unsealed. Epstein-related and trafficking records released to the public.</div>
+    </div>
+    <div class="provision">
+      <div class="prov-title">🔓 Truth & Transparency</div>
+      <div class="prov-desc">Every sealed record, secret immunity deal, and black-book name brought into public light. Whistleblower protections massively expanded. Classified abuses declassified on a public schedule.</div>
+    </div>
+  </div>
+</div>
+
+<!-- PEOPLE'S WALL -->
+<div class="wall-wrap">
+  <div class="wall-hd">
+    <div class="wall-title">💬 People's Wall</div>
+    <div class="wall-n" id="wallN">0 posts</div>
+  </div>
+  <div class="composer">
+    <textarea class="comp-ta" id="postTa" rows="3" placeholder="Share why this bill matters to you, add a link, or tell your story…" oninput="detectLink(this.value)"></textarea>
+    <div class="link-prev" id="linkPrev">
+      <span id="lpIcon">🔗</span><span id="lpTxt"></span>
+    </div>
+    <div class="img-prev-wrap" id="imgPrevWrap">
+      <img class="img-prev" id="imgPrev" alt="preview"/>
+      <button class="img-rm" onclick="clearImg()">✕ Remove</button>
+    </div>
+    <div class="comp-tools">
+      <label class="c-tool">📷 Photo<input type="file" accept="image/*" onchange="handleImg(this)"/></label>
+      <span class="c-tool" onclick="promptLink()">🔗 Link</span>
+      <span class="c-tool" onclick="promptYT()">▶️ YouTube</span>
+      <button class="c-post" onclick="submitPost()">POST →</button>
+    </div>
+  </div>
+  <div id="postsFeed"></div>
+  <div class="no-posts" id="noPosts">Be the first to share your story ✊</div>
+</div>
+
+<footer>
+  1Promise · Free, nonpartisan civic tool · Not affiliated with any party or PAC<br/>
+  Built for the people · Open source · Always free
+</footer>
+</div><!-- /#app -->
+
+<!-- PHONE MODAL -->
+<div class="ovl" id="phoneOvl" onclick="closeOvl('phoneOvl',event)">
+  <div class="modal">
+    <div class="modal-title">📞 Call Your Reps<button class="modal-x" onclick="closeOvlF('phoneOvl')">✕</button></div>
+    <div id="callCards"></div>
+    <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px;">Staffers log every call. Even a voicemail counts.</p>
+  </div>
+</div>
+
+<!-- FAX MODAL -->
+<div class="ovl" id="faxOvl" onclick="closeOvl('faxOvl',event)">
+  <div class="modal">
+    <div class="modal-title">📠 Fax via Resistbot<button class="modal-x" onclick="closeOvlF('faxOvl')">✕</button></div>
+    <ol class="fax-steps">
+      <li class="fax-step"><div class="fax-txt">Hit the button below — your full message is <strong>copied to your clipboard automatically</strong>.</div></li>
+      <li class="fax-step"><div class="fax-txt">Resistbot opens. Enter your address. <strong>Paste your message</strong> when prompted.</div></li>
+      <li class="fax-step"><div class="fax-txt">Resistbot faxes <strong>all your reps at once</strong> — completely free. Fax is the most effective way to reach Congress.</div></li>
+    </ol>
+    <p style="font-size:12px;color:var(--muted);margin:12px 0 0;text-align:center;">Or text <strong style="color:var(--gold)">RESIST</strong> to <strong style="color:var(--gold)">50409</strong> to use Resistbot via SMS.</p>
+    <button class="btn-fax" onclick="doFax()">📋 Copy Message &amp; Open Resistbot →</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast" role="alert" aria-live="polite"></div>
 
 <script>
-// ── STARS ──────────────────────────────────────────────
-(function() {
-  const container = document.getElementById('stars');
-  for (let i = 0; i < 60; i++) {
-    const s = document.createElement('div');
-    s.className = 'star';
-    const size = Math.random() * 2 + 1;
-    s.style.cssText = `
-      width:${size}px; height:${size}px;
-      left:${Math.random()*100}%;
-      top:${Math.random()*100}%;
-      --dur:${(Math.random()*4+2).toFixed(1)}s;
-      --del:${(Math.random()*4).toFixed(1)}s;
-    `;
-    container.appendChild(s);
+'use strict';
+/* ════════════════════════════════════════════
+   STATE
+════════════════════════════════════════════ */
+var reps=[], msg='', sentCount=0;
+var pendingImg=null, pendingLink='', pendingYT='';
+var billOpen=false;
+
+/* ════════════════════════════════════════════
+   BACKGROUND CANVAS (particles)
+════════════════════════════════════════════ */
+(function(){
+  var c=document.getElementById('bgCanvas');
+  var ctx=c.getContext('2d');
+  var pts=[];
+  function resize(){ c.width=window.innerWidth; c.height=window.innerHeight; }
+  resize();
+  window.addEventListener('resize',resize);
+  for(var i=0;i<80;i++) pts.push({
+    x:Math.random()*c.width, y:Math.random()*c.height,
+    r:Math.random()*1.5+.3,
+    vx:(Math.random()-.5)*.15, vy:(Math.random()-.5)*.15,
+    o:Math.random()*.3+.05
+  });
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    pts.forEach(function(p){
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0||p.x>c.width) p.vx*=-1;
+      if(p.y<0||p.y>c.height) p.vy*=-1;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(242,161,0,'+p.o+')';
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
   }
+  draw();
 })();
 
-// ── STATE ──────────────────────────────────────────────
-let reps = [];
-let currentMessage = '';
-
-// ── TOAST ──────────────────────────────────────────────
-function showToast(msg, duration = 2800) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), duration);
-}
-
-// ── ERROR ──────────────────────────────────────────────
-function showError(msg) {
-  const eb = document.getElementById('errorBox');
-  eb.textContent = msg;
-  eb.classList.add('show');
-}
-function clearError() {
-  document.getElementById('errorBox').classList.remove('show');
-}
-
-// ── FIND REPS ──────────────────────────────────────────
-async function findReps() {
-  clearError();
-  const zip = document.getElementById('zipInput').value.trim();
-  if (!/^\d{5}$/.test(zip)) {
-    showError('Please enter a valid 5-digit ZIP code.');
-    return;
-  }
-  const btn = document.getElementById('findBtn');
-  const statusMsg = document.getElementById('statusMsg');
-  btn.disabled = true;
-  statusMsg.classList.add('show');
-
-  try {
-    // Use corsproxy.io to bypass CORS on whoismyrepresentative.com
-    const proxyUrl = `https://corsproxy.io/?url=${encodeURIComponent(`https://whoismyrepresentative.com/getall_mems.php?zip=${zip}&output=json`)}`;
-    const res = await fetch(proxyUrl);
-    if (!res.ok) throw new Error('Network error');
-    const data = await res.json();
-    if (!data.results || data.results.length === 0) throw new Error('No results');
-    reps = data.results.map(r => ({
-      name: r.name,
-      party: r.party,
-      state: r.state,
-      district: r.district,
-      phone: r.phone,
-      office: r.office,
-      link: r.link,
-      role: r.district ? `Rep. · ${r.state}-${r.district}` : `Senator · ${r.state}`
-    }));
-    renderReps();
-    buildMessage(zip);
-    showSections();
-  } catch(e) {
-    // Fallback: direct link to find reps manually
-    showError('Could not auto-lookup representatives. Try the manual option below — your rep lookup will open in a new tab.');
-    const manualFallback = document.createElement('div');
-    manualFallback.style.cssText = 'margin-top:10px; text-align:center;';
-    manualFallback.innerHTML = `<a href="https://www.congress.gov/members/find-your-member" target="_blank" rel="noopener" style="color:var(--gold); font-size:13px;">Find My Rep on Congress.gov →</a>`;
-    document.getElementById('errorBox').after(manualFallback);
-  } finally {
-    btn.disabled = false;
-    statusMsg.classList.remove('show');
-  }
-}
-
-// Enter key support
-document.getElementById('zipInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') findReps();
-});
-
-// ── RENDER REPS ───────────────────────────────────────
-function renderReps() {
-  const list = document.getElementById('repsList');
-  const partyClass = { 'D': 'D', 'R': 'R', 'I': 'I', 'Democrat': 'D', 'Republican': 'R', 'Independent': 'I' };
-  const partyLabel = { 'D': 'DEM', 'R': 'REP', 'I': 'IND', 'Democrat': 'DEM', 'Republican': 'REP', 'Independent': 'IND' };
-  list.innerHTML = reps.map(r => {
-    const initials = r.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-    const pc = partyClass[r.party] || 'I';
-    const pl = partyLabel[r.party] || r.party;
-    return `
-    <div class="rep-item">
-      <div class="rep-avatar ${pc}">${initials}</div>
-      <div class="rep-info">
-        <div class="rep-name">${r.name}</div>
-        <div class="rep-role">${r.role}</div>
-      </div>
-      <span class="rep-party ${pc}">${pl}</span>
-    </div>`;
-  }).join('');
-}
-
-// ── BUILD MESSAGE ─────────────────────────────────────
-function buildMessage(zip) {
-  const names = reps.map(r => r.name).join(', ');
-  const msg = `Dear ${names},
-
-I am your constituent writing from ZIP code ${zip}.
-
-I am asking you to co-sponsor and vote YES on the American Promise and Trust Act of 2026 — a comprehensive, nonpartisan bill that addresses what millions of American families have been demanding for years.
-
-This bill would:
-• Establish postal banking with 4% interest — free from Wall Street fees
-• Ban toxic food dyes (Red 40, Yellow 5, and others) already prohibited in the rest of the world
-• Cancel student loan debt and make college free for future generations
-• Raise the federal minimum wage to $25 and establish a 32-hour work week
-• Replace lead pipes and ban PFAS chemicals to ensure clean water for every child
-• Get dark money out of elections with small-donor public financing
-• End the two-tiered justice system where the wealthy and powerful face no accountability
-• Unseal records and end secret immunity deals that shield the powerful from justice
-
-This is not a Democratic bill or a Republican bill. It is a people's bill.
-
-My community needs you to act. Please co-sponsor the American Promise and Trust Act of 2026, communicate your position publicly, and vote YES when it comes to the floor.
-
-I will be watching your response closely, and I will make sure my neighbors know where you stand.
-
-Respectfully,
-A Constituent from ${zip}`;
-
-  currentMessage = msg;
-  document.getElementById('msgBox').textContent = msg;
-}
-
-// ── SHOW SECTIONS ─────────────────────────────────────
-function showSections() {
-  const repsCard = document.getElementById('reps-card');
-  const msgSection = document.getElementById('message-section');
-  const actionsSection = document.getElementById('actions-section');
-  const shareRow = document.getElementById('shareRow');
-  const step1 = document.getElementById('step1-num');
-
-  step1.classList.add('done');
-  step1.textContent = '✓';
-
-  repsCard.style.display = 'block';
-  repsCard.classList.add('fade-in');
-
-  msgSection.classList.add('show');
-  msgSection.classList.add('fade-in');
-
-  actionsSection.classList.add('show');
-  actionsSection.classList.add('fade-in');
-
-  shareRow.style.display = 'flex';
-  shareRow.classList.add('fade-in');
-
-  // Smooth scroll to reps
-  setTimeout(() => repsCard.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-}
-
-// ── EMAIL ─────────────────────────────────────────────
-function doEmail() {
-  const subject = encodeURIComponent('Please Co-Sponsor the American Promise and Trust Act of 2026');
-  const body = encodeURIComponent(currentMessage);
-
-  // Build multi-recipient string for contact-form links fallback
-  // mailto with multiple recipients
-  const phones = reps.map(r => r.link).filter(Boolean);
-  const mailtoLink = `mailto:?subject=${subject}&body=${body}`;
-
-  // Open mail client
-  window.open(mailtoLink, '_blank');
-
-  // Also surface contact page links for reps (they don't have public emails)
-  const repLinks = reps.filter(r => r.link).map(r =>
-    `<a href="${r.link}" target="_blank" rel="noopener" style="display:block; color:var(--gold); font-size:13px; margin:4px 0; text-decoration:none;">📬 ${r.name}'s Contact Form →</a>`
-  ).join('');
-
-  if (repLinks) {
-    const note = document.createElement('div');
-    note.style.cssText = 'margin-top:10px; padding:12px; background:rgba(245,166,35,0.08); border:1px solid var(--border); border-radius:4px;';
-    note.innerHTML = `<div style="font-size:11px; color:var(--gold); font-weight:700; letter-spacing:1px; margin-bottom:6px;">ALSO SUBMIT VIA OFFICIAL CONTACT FORMS</div>${repLinks}`;
-    const grid = document.querySelector('.actions-grid');
-    const existing = document.getElementById('contactFormsNote');
-    if (!existing) {
-      note.id = 'contactFormsNote';
-      grid.after(note);
-    }
-    showToast('✓ Mail app opened · Contact forms shown below');
-  } else {
-    showToast('✓ Mail app opened');
-  }
-}
-
-// ── PHONE MODAL ───────────────────────────────────────
-function openPhoneModal() {
-  const list = document.getElementById('callList');
-  list.innerHTML = reps.map(r => {
-    const phoneDisplay = r.phone || 'Not available';
-    const phoneLink = r.phone ? `<a class="btn-call" href="tel:${r.phone.replace(/[^\d]/g,'')}" style="text-decoration:none;">
-      📞 Call ${r.name.split(' ').slice(-1)[0]}  &nbsp;${r.phone}
-    </a>` : `<div style="font-size:12px;opacity:0.5;margin-bottom:8px;">Phone number not available — use contact form</div>`;
-
-    const scriptId = `script-${r.name.replace(/\s/g,'')}`;
-    const lastName = r.name.split(' ').slice(-1)[0];
-    const role = r.district ? 'Representative' : 'Senator';
-    const script = `"Hi, my name is [your name] and I'm a constituent from [your city]. I'm calling to urge ${role} ${lastName} to co-sponsor and vote YES on the American Promise and Trust Act of 2026. This bill would [postal banking / ban toxic dyes / cancel student debt / $25 minimum wage / clean water]. Can I get the ${role}'s position on this legislation? Thank you."`;
-
-    return `<div class="rep-call-item">
-      <div class="rep-call-name">${r.name}</div>
-      <div class="rep-call-role">${r.role}</div>
-      ${phoneLink}
-      ${r.link ? `<a href="${r.link}" target="_blank" rel="noopener" class="btn-call" style="background:var(--navy-light); border:1px solid var(--border); text-decoration:none; margin-bottom:8px;">🌐 Contact Form</a>` : ''}
-      <button class="btn-script-toggle" onclick="toggleScript('${scriptId}')">View call script ▾</button>
-      <div class="call-script" id="${scriptId}">${script}</div>
-    </div>`;
-  }).join('');
-
-  document.getElementById('phoneModal').classList.add('show');
-  document.body.style.overflow = 'hidden';
-}
-
-function toggleScript(id) {
-  document.getElementById(id).classList.toggle('show');
-}
-
-function closePhoneModal(event, force) {
-  if (force || event.target.id === 'phoneModal') {
-    document.getElementById('phoneModal').classList.remove('show');
-    document.body.style.overflow = '';
-  }
-}
-
-// ── FAX ───────────────────────────────────────────────
-function doFax() {
-  // Resistbot: text RESIST to 50409 then follow prompts to fax Congress
-  const resistbotUrl = 'https://resistbot.io';
-  window.open(resistbotUrl, '_blank');
-
-  // Copy fax message to clipboard for easy paste
-  navigator.clipboard.writeText(currentMessage).then(() => {
-    showToast('📋 Message copied · Paste it into Resistbot', 3500);
-  }).catch(() => {
-    showToast('📠 Resistbot opened · Text RESIST to 50409', 3500);
+/* ════════════════════════════════════════════
+   CONFETTI
+════════════════════════════════════════════ */
+var confettiPieces=[];
+var confettiRunning=false;
+function launchConfetti(){
+  var c=document.getElementById('confettiCanvas');
+  c.width=window.innerWidth; c.height=window.innerHeight;
+  var ctx=c.getContext('2d');
+  var colors=['#f2a100','#ffd166','#e63946','#2ec4b6','#ffffff','#f0ead8'];
+  confettiPieces=[];
+  for(var i=0;i<160;i++) confettiPieces.push({
+    x:Math.random()*c.width, y:-20-Math.random()*200,
+    w:6+Math.random()*8, h:4+Math.random()*6,
+    color:colors[Math.floor(Math.random()*colors.length)],
+    rot:Math.random()*360, rv:(Math.random()-0.5)*8,
+    vy:3+Math.random()*4, vx:(Math.random()-0.5)*3,
+    alpha:1
   });
-}
-
-// ── COPY MESSAGE ──────────────────────────────────────
-function copyMessage() {
-  navigator.clipboard.writeText(currentMessage).then(() => {
-    showToast('✓ Message copied to clipboard!');
-  }).catch(() => {
-    // fallback: select the text
-    const box = document.getElementById('msgBox');
-    const range = document.createRange();
-    range.selectNodeContents(box);
-    window.getSelection().removeAllRanges();
-    window.getSelection().addRange(range);
-    showToast('Text selected — copy with Ctrl+C / ⌘+C');
-  });
-}
-
-// ── SHARE ─────────────────────────────────────────────
-function shareApp() {
-  const data = {
-    title: '1Promise — Make Congress Act in 60 Seconds',
-    text: 'Send the American Promise and Trust Act of 2026 to your reps in 60 seconds. No account needed. Free.',
-    url: window.location.href
-  };
-  if (navigator.share) {
-    navigator.share(data).catch(() => {});
-  } else {
-    navigator.clipboard.writeText(window.location.href).then(() => {
-      showToast('🔗 Link copied — share it!');
+  confettiRunning=true;
+  function step(){
+    if(!confettiRunning) return;
+    ctx.clearRect(0,0,c.width,c.height);
+    var alive=false;
+    confettiPieces.forEach(function(p){
+      p.y+=p.vy; p.x+=p.vx; p.rot+=p.rv;
+      if(p.y<c.height+20){ alive=true; }
+      else p.alpha=Math.max(0,p.alpha-0.02);
+      ctx.save();
+      ctx.globalAlpha=p.alpha;
+      ctx.translate(p.x,p.y);
+      ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle=p.color;
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      ctx.restore();
     });
+    if(alive) requestAnimationFrame(step);
+    else { confettiRunning=false; ctx.clearRect(0,0,c.width,c.height); }
+  }
+  step();
+}
+
+/* ════════════════════════════════════════════
+   LIVE COUNTER
+════════════════════════════════════════════ */
+var baseCount=4218;
+function initCounter(){
+  var stored=parseInt(localStorage.getItem('1p_sends')||'0');
+  baseCount+=stored;
+  animateCounter(baseCount);
+  setInterval(function(){
+    baseCount+=Math.floor(Math.random()*3);
+    animateCounter(baseCount);
+  },4500);
+}
+var currentDisplay=4218;
+function animateCounter(target){
+  var step=Math.ceil((target-currentDisplay)/8);
+  if(step<=0){ document.getElementById('liveNum').textContent=target.toLocaleString(); currentDisplay=target; return; }
+  function tick(){
+    currentDisplay=Math.min(currentDisplay+step,target);
+    document.getElementById('liveNum').textContent=currentDisplay.toLocaleString();
+    if(currentDisplay<target) requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+/* ════════════════════════════════════════════
+   PROGRESS
+════════════════════════════════════════════ */
+var methods={email:false,phone:false,fax:false};
+function markMethod(m){
+  methods[m]=true;
+  var done=Object.values(methods).filter(Boolean).length;
+  document.getElementById('progFill').style.width=(done*33.3)+'%';
+  document.getElementById('progLabel').textContent=done+' of 3 contact methods used';
+  document.getElementById('pb-'+m).classList.add('done');
+  var stored=parseInt(localStorage.getItem('1p_sends')||'0')+1;
+  localStorage.setItem('1p_sends',stored);
+  baseCount++;
+  animateCounter(baseCount);
+  if(done>=2) setTimeout(showSuccess,600);
+}
+
+/* ════════════════════════════════════════════
+   SUCCESS SCREEN
+════════════════════════════════════════════ */
+function showSuccess(){
+  var name=document.getElementById('fName').value.trim()||'American Citizen';
+  var city=document.getElementById('fCity').value.trim();
+  document.getElementById('badgeName').textContent=name+(city?' from '+city:'');
+  document.getElementById('successScreen').classList.add('on');
+  document.body.style.overflow='hidden';
+  launchConfetti();
+}
+function closeSuccess(){
+  document.getElementById('successScreen').classList.remove('on');
+  document.body.style.overflow='';
+  confettiRunning=false;
+}
+function viralShare(){
+  var name=document.getElementById('fName').value.trim()||'A citizen';
+  var text=name+' just contacted all their representatives about the American Promise & Trust Act of 2026. You can too in 60 seconds — no account needed:';
+  if(navigator.share) navigator.share({title:'1Promise',text:text,url:location.href}).catch(function(){});
+  else { navigator.clipboard.writeText(location.href+'\n\n'+text).then(function(){toast('🔗 Link + message copied — paste anywhere!');}); }
+}
+function viralTweet(){
+  var t='I just sent the American Promise & Trust Act of 2026 to ALL my reps in under 60 seconds. Join me 👇';
+  window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(t)+'&url='+encodeURIComponent(location.href),'_blank');
+}
+
+/* ════════════════════════════════════════════
+   ZIP AUTO-SUBMIT
+════════════════════════════════════════════ */
+function onZipInput(val){
+  if(val.length===5) findReps(val);
+}
+document.addEventListener('DOMContentLoaded',function(){
+  document.getElementById('zipIn').addEventListener('keydown',function(e){
+    if(e.key==='Enter') findReps(document.getElementById('zipIn').value);
+  });
+  initCounter();
+  renderPosts();
+  updateWallN();
+});
+
+/* ════════════════════════════════════════════
+   GEOLOCATION
+════════════════════════════════════════════ */
+function useLocation(){
+  if(!navigator.geolocation){ toast('Geolocation not available on this device'); return; }
+  toast('📍 Getting your location…');
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var lat=pos.coords.latitude, lon=pos.coords.longitude;
+    fetch('https://nominatim.openstreetmap.org/reverse?lat='+lat+'&lon='+lon+'&format=json')
+      .then(function(r){return r.json();})
+      .then(function(d){
+        var zip=d.address&&d.address.postcode;
+        if(zip&&/^\d{5}/.test(zip)){
+          zip=zip.slice(0,5);
+          document.getElementById('zipIn').value=zip;
+          findReps(zip);
+        } else { toast('Could not get ZIP from location — enter it manually'); }
+      }).catch(function(){ toast('Location lookup failed — enter ZIP manually'); });
+  },function(){ toast('Location access denied — enter ZIP manually'); });
+}
+
+/* ════════════════════════════════════════════
+   FIND REPS
+════════════════════════════════════════════ */
+async function findReps(zip){
+  zip=(zip||'').trim();
+  if(!/^\d{5}$/.test(zip)){ showErr('Please enter a valid 5-digit ZIP code.'); return; }
+  clearErr();
+  document.getElementById('statMsg').classList.add('on');
+  document.getElementById('zipIn').blur();
+  try{
+    var url='https://corsproxy.io/?url='+encodeURIComponent('https://whoismyrepresentative.com/getall_mems.php?zip='+zip+'&output=json');
+    var res=await fetch(url);
+    if(!res.ok) throw new Error('fetch failed');
+    var data=await res.json();
+    if(!data.results||!data.results.length) throw new Error('no results');
+    reps=data.results.map(function(r){
+      var clean=r.name.replace(/^(Rep\.|Sen\.|Senator|Representative)\s*/i,'').trim();
+      var parts=clean.split(/\s+/);
+      var first=(parts[0]||'').toLowerCase().replace(/[^a-z]/g,'');
+      var last=(parts[parts.length-1]||'').toLowerCase().replace(/[^a-z]/g,'');
+      var isH=!!r.district;
+      return{
+        name:r.name, party:r.party, state:r.state, district:r.district,
+        phone:r.phone, link:r.link,
+        email:isH?first+'.'+last+'@mail.house.gov':null,
+        isHouse:isH,
+        role:isH?'U.S. Representative · '+r.state+(r.district?'-'+r.district:''):'U.S. Senator · '+r.state
+      };
+    });
+    buildMsg(zip);
+    renderReps();
+    revealSections();
+  }catch(e){
+    showErr('Could not find representatives. <a href="https://www.congress.gov/members/find-your-member" target="_blank" rel="noopener" style="color:var(--gold)">Find them manually on Congress.gov →</a>');
+  }finally{
+    document.getElementById('statMsg').classList.remove('on');
   }
 }
 
-function shareToTwitter() {
-  const text = `I just sent the American Promise and Trust Act of 2026 to ALL of my reps in under 60 seconds. You can too:\n\n`;
-  const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.href)}`;
-  window.open(url, '_blank');
+/* ════════════════════════════════════════════
+   BUILD MESSAGE
+════════════════════════════════════════════ */
+function buildMsg(zip){
+  var fname=document.getElementById('fName').value.trim();
+  var city=document.getElementById('fCity').value.trim();
+  var names=reps.map(function(r){return r.name;}).join(', ');
+  var sign=fname?(fname+(city?', '+city+', ZIP '+zip:' — ZIP '+zip)):'A Concerned Constituent from ZIP '+zip;
+
+  msg='Dear '+names+',\n\nI am your constituent'+(fname?' — my name is '+fname:''+(city?', writing from '+city:''))+', ZIP code '+zip+'.\n\nI am writing to respectfully urge you to co-sponsor and vote YES on the American Promise and Trust Act of 2026.\n\nThis bill addresses the most urgent needs of American families, across party lines:\n\n• Free postal banking at 4% interest — ending Wall Street fee extraction\n• Ban of Red 40, Yellow 5, and other toxic food dyes already banned worldwide\n• Cancellation of student loan debt and tuition-free college going forward\n• A $25 federal minimum wage and a 32-hour work week\n• Full lead pipe replacement and PFAS ban — clean water for every child\n• Small-donor public financing and a ban on dark money in elections\n• Accountability reforms so no person — regardless of wealth or power — is above the law\n• Unsealing of sealed records and end of secret immunity deals\n\nThis is not a Democratic bill. It is not a Republican bill. It is a people\'s bill, and it has broad bipartisan support among ordinary Americans.\n\nI will be watching your position on this legislation closely, and I will make my community aware of where you stand.\n\nPlease co-sponsor the American Promise and Trust Act of 2026.\n\nRespectfully,\n'+sign;
+
+  document.getElementById('msgBox').textContent=msg;
+  if(fname){
+    document.getElementById('msgSigned').style.display='flex';
+  }
 }
 
-// ── SERVICE WORKER ─────────────────────────────────────
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+/* ════════════════════════════════════════════
+   RENDER REPS
+════════════════════════════════════════════ */
+function renderReps(){
+  var pc={Democrat:'D',Republican:'R',D:'D',R:'R',Independent:'I',I:'I'};
+  document.getElementById('repsList').innerHTML=reps.map(function(r){
+    var p=pc[r.party]||'I';
+    var ini=r.name.split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();
+    var chip=r.email
+      ?'<span class="rep-chip email">✉ Email ready</span>'
+      :'<span class="rep-chip form">📋 Form only</span>';
+    return '<div class="rep-item"><div class="rep-av '+p+'">'+ini+'</div><div class="rep-info"><div class="rep-name">'+esc(r.name)+'</div><div class="rep-role">'+esc(r.role)+'</div></div>'+chip+'</div>';
+  }).join('');
+}
+
+/* ════════════════════════════════════════════
+   REVEAL SECTIONS
+════════════════════════════════════════════ */
+function revealSections(){
+  ['s2','s3','s4','shareRow'].forEach(function(id){
+    var el=document.getElementById(id);
+    el.classList.remove('hide');
+    el.classList.add('fade');
+  });
+  var n1=document.getElementById('n1'); n1.classList.add('done'); n1.textContent='✓';
+  document.getElementById('s1').classList.remove('lit');
+  document.getElementById('s2').classList.add('lit');
+  setTimeout(function(){document.getElementById('s2').scrollIntoView({behavior:'smooth',block:'start'});},120);
+}
+
+/* ════════════════════════════════════════════
+   EMAIL
+════════════════════════════════════════════ */
+function doEmail(){
+  var subj=encodeURIComponent('Please Co-Sponsor the American Promise & Trust Act of 2026');
+  var body=encodeURIComponent(msg);
+  var emails=reps.filter(function(r){return r.email;}).map(function(r){return r.email;});
+  if(emails.length) window.open('mailto:'+emails.join(',')+'?subject='+subj+'&body='+body,'_blank');
+
+  // Show contact forms
+  var flb=document.getElementById('formLinksBox');
+  var fll=document.getElementById('formLinksList');
+  var links=reps.filter(function(r){return r.link;}).map(function(r){
+    return '<a class="form-link-row" href="'+esc(r.link)+'" target="_blank" rel="noopener">📬 '+esc(r.name)+' — Official Contact Form <span style="margin-left:auto;opacity:.4;">→</span></a>';
+  }).join('');
+  if(links){ fll.innerHTML=links; flb.classList.add('on'); }
+
+  document.getElementById('actEmail').classList.add('sent');
+  markMethod('email');
+  toast('✓ Mail opened · TO: field pre-filled · Just hit Send!');
+}
+
+/* ════════════════════════════════════════════
+   PHONE
+════════════════════════════════════════════ */
+function openPhone(){
+  document.getElementById('callCards').innerHTML=reps.map(function(r,i){
+    var role=r.isHouse?'Representative':'Senator';
+    var last=r.name.split(' ').slice(-1)[0];
+    var fname=document.getElementById('fName').value.trim()||'[your name]';
+    var city=document.getElementById('fCity').value.trim()||'[your city]';
+    var script='"Hi, my name is '+fname+' and I\'m calling from '+city+'. I\'m urging '+role+' '+last+' to co-sponsor and vote YES on the American Promise and Trust Act of 2026 — the bill that provides postal banking, clean water, a $25 minimum wage, and real accountability. Can you tell me where the '+role+' stands on this bill? Thank you."';
+    return '<div class="call-card"><div class="call-name">'+esc(r.name)+'</div><div class="call-role">'+esc(r.role)+'</div>'
+      +(r.phone?'<a class="btn-call-now" href="tel:'+r.phone.replace(/\D/g,'')+'">📞 Call Now — '+esc(r.phone)+'</a>':'<div style="font-size:12px;color:var(--muted);margin-bottom:8px;">Phone not available</div>')
+      +(r.link?'<a class="btn-form-link" href="'+esc(r.link)+'" target="_blank" rel="noopener">🌐 Official Contact Form</a>':'')
+      +'<button class="script-tog" onclick="togScript(\'sc'+i+'\')">▾ View call script</button>'
+      +'<div class="script-box" id="sc'+i+'">'+esc(script)+'</div></div>';
+  }).join('');
+  document.getElementById('phoneOvl').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function togScript(id){ document.getElementById(id).classList.toggle('on'); }
+
+/* ════════════════════════════════════════════
+   FAX
+════════════════════════════════════════════ */
+function openFax(){
+  document.getElementById('faxOvl').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function doFax(){
+  navigator.clipboard.writeText(msg).catch(function(){});
+  window.open('https://resistbot.io','_blank');
+  closeOvlF('faxOvl');
+  document.getElementById('actFax').classList.add('sent');
+  markMethod('fax');
+  toast('📋 Message copied — paste into Resistbot!',4000);
+}
+
+/* ════════════════════════════════════════════
+   COPY
+════════════════════════════════════════════ */
+function copyMsg(){
+  navigator.clipboard.writeText(msg).then(function(){
+    markMethod('copy');
+    toast('✓ Message copied to clipboard!');
+  }).catch(function(){
+    var el=document.getElementById('msgBox');
+    var rng=document.createRange(); rng.selectNodeContents(el);
+    window.getSelection().removeAllRanges(); window.getSelection().addRange(rng);
+    toast('Text selected — Ctrl+C or ⌘+C to copy');
   });
 }
 
-// ── PWA INSTALL PROMPT ────────────────────────────────
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  deferredPrompt = e;
-  // Show install banner after 10s
-  setTimeout(() => {
-    if (deferredPrompt) {
-      const banner = document.createElement('div');
-      banner.style.cssText = `
-        position:fixed; bottom:80px; left:50%; transform:translateX(-50%);
-        background:var(--navy-mid); border:1px solid var(--border);
-        border-radius:30px; padding:10px 20px; z-index:150;
-        display:flex; align-items:center; gap:10px;
-        font-size:13px; font-weight:600; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        white-space: nowrap;
-      `;
-      banner.innerHTML = `<span>📲 Install 1Promise as an app</span>
-        <button onclick="installPWA(this.parentElement)" style="background:var(--gold);color:var(--navy);border:none;border-radius:20px;padding:5px 14px;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:0.5px;">INSTALL</button>
-        <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--off-white);opacity:0.5;cursor:pointer;font-size:16px;">✕</button>`;
-      document.body.appendChild(banner);
-      setTimeout(() => banner.remove(), 12000);
-    }
-  }, 10000);
-});
-
-function installPWA(banner) {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
-    if (banner) banner.remove();
-  }
+/* ════════════════════════════════════════════
+   SHARE
+════════════════════════════════════════════ */
+function doShare(){
+  var d={title:'1Promise — Make Congress Act',text:'Send the American Promise & Trust Act to ALL your reps in 60 seconds — no account needed.',url:location.href};
+  if(navigator.share) navigator.share(d).catch(function(){});
+  else navigator.clipboard.writeText(location.href).then(function(){toast('🔗 Link copied!');});
 }
+
+/* ════════════════════════════════════════════
+   BILL ACCORDION
+════════════════════════════════════════════ */
+function toggleBill(){
+  billOpen=!billOpen;
+  document.getElementById('billDetail').classList.toggle('on',billOpen);
+  document.getElementById('billArrow').style.transform=billOpen?'rotate(180deg)':'';
+}
+
+/* ════════════════════════════════════════════
+   OVERLAYS
+════════════════════════════════════════════ */
+function closeOvl(id,e){ if(e.target.id===id) closeOvlF(id); }
+function closeOvlF(id){ document.getElementById(id).classList.remove('on'); document.body.style.overflow=''; }
+
+/* ════════════════════════════════════════════
+   COMMUNITY WALL
+════════════════════════════════════════════ */
+var pendingImgData=null, pendingLinkData='', pendingYTData='';
+
+function detectLink(text){
+  var yt=text.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([\w-]{11})/);
+  var url=text.match(/https?:\/\/[^\s]+/);
+  var lp=document.getElementById('linkPrev');
+  if(yt){ pendingYTData=yt[1]; pendingLinkData=''; document.getElementById('lpIcon').textContent='▶️'; document.getElementById('lpTxt').textContent='YouTube video — will embed in post'; lp.classList.add('on'); }
+  else if(url){ pendingLinkData=url[0]; pendingYTData=''; document.getElementById('lpIcon').textContent='🔗'; document.getElementById('lpTxt').textContent=url[0].slice(0,55)+(url[0].length>55?'…':''); lp.classList.add('on'); }
+  else{ pendingYTData=''; pendingLinkData=''; lp.classList.remove('on'); }
+}
+function handleImg(inp){
+  var f=inp.files[0]; if(!f) return;
+  if(f.size>6*1024*1024){ toast('Image must be under 6MB'); return; }
+  var rd=new FileReader(); rd.onload=function(e){ pendingImgData=e.target.result; document.getElementById('imgPrev').src=pendingImgData; document.getElementById('imgPrevWrap').style.display='block'; }; rd.readAsDataURL(f);
+}
+function clearImg(){ pendingImgData=null; document.getElementById('imgPrevWrap').style.display='none'; document.getElementById('imgPrev').src=''; }
+function promptLink(){ var u=prompt('Paste a URL:'); if(u&&u.startsWith('http')){ var ta=document.getElementById('postTa'); ta.value=(ta.value+' '+u).trim(); detectLink(ta.value); } }
+function promptYT(){ var u=prompt('Paste a YouTube URL:'); if(u){ var ta=document.getElementById('postTa'); ta.value=(ta.value+' '+u).trim(); detectLink(ta.value); } }
+
+function submitPost(){
+  var text=document.getElementById('postTa').value.trim();
+  if(!text&&!pendingImgData){ toast('Write something first ✍️'); return; }
+  var fname=document.getElementById('fName').value.trim()||'Anonymous';
+  var city=document.getElementById('fCity').value.trim();
+  var post={id:Date.now(),text:text,img:pendingImgData||null,link:pendingLinkData||null,yt:pendingYTData||null,name:fname+(city?' · '+city:''),time:Date.now(),likes:0,liked:false};
+  var posts=getPosts(); posts.unshift(post); savePosts(posts);
+  document.getElementById('postTa').value='';
+  document.getElementById('linkPrev').classList.remove('on');
+  pendingImgData=null; pendingLinkData=''; pendingYTData=''; clearImg();
+  renderPosts(); updateWallN();
+  toast('✓ Posted to the People\'s Wall!');
+}
+function getPosts(){ try{return JSON.parse(localStorage.getItem('1p_posts')||'[]');}catch(e){return[];} }
+function savePosts(p){ try{localStorage.setItem('1p_posts',JSON.stringify(p.slice(0,100)));}catch(e){} }
+function renderPosts(){
+  var posts=getPosts(), feed=document.getElementById('postsFeed'), np=document.getElementById('noPosts');
+  if(!posts.length){ feed.innerHTML=''; np.style.display=''; return; }
+  np.style.display='none';
+  feed.innerHTML=posts.map(function(p){
+    var ini=(p.name||'A')[0].toUpperCase();
+    var ytEl=p.yt?'<iframe class="post-yt" src="https://www.youtube.com/embed/'+p.yt+'" allowfullscreen loading="lazy"></iframe>':'';
+    var imgEl=p.img?'<img class="post-img" src="'+p.img+'" alt="shared image" loading="lazy"/>':'';
+    var lkEl=(p.link&&!p.yt)?'<a class="post-link" href="'+esc(p.link)+'" target="_blank" rel="noopener">'+esc(p.link)+'</a>':'';
+    return '<div class="post" id="p'+p.id+'">'
+      +'<div class="post-hd"><div class="post-av">'+ini+'</div><div class="post-meta"><div class="post-name">'+esc(p.name)+'</div><div class="post-time">'+timeAgo(p.time)+'</div></div></div>'
+      +(p.text?'<div class="post-txt">'+esc(p.text).replace(/\n/g,'<br/>')+'</div>':'')
+      +ytEl+imgEl+lkEl
+      +'<div class="post-acts">'
+      +'<button class="post-btn'+(p.liked?' liked':'')+'" onclick="likeP('+p.id+')">'+(p.liked?'★':'☆')+' '+p.likes+'</button>'
+      +'<button class="post-btn" onclick="delP('+p.id+')">🗑</button>'
+      +'</div></div>';
+  }).join('');
+}
+function likeP(id){ var posts=getPosts(), p=posts.find(function(x){return x.id===id;}); if(!p)return; p.liked=!p.liked; p.likes+=p.liked?1:-1; savePosts(posts); renderPosts(); }
+function delP(id){ savePosts(getPosts().filter(function(p){return p.id!==id;})); renderPosts(); updateWallN(); }
+function updateWallN(){ var n=getPosts().length; document.getElementById('wallN').textContent=n+(n===1?' post':' posts'); }
+
+/* ════════════════════════════════════════════
+   UTILS
+════════════════════════════════════════════ */
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function timeAgo(ts){ var d=Date.now()-ts; if(d<60000)return'just now'; if(d<3600000)return Math.floor(d/60000)+'m ago'; if(d<86400000)return Math.floor(d/3600000)+'h ago'; return Math.floor(d/86400000)+'d ago'; }
+function showErr(html){ var e=document.getElementById('errBox'); e.innerHTML=html; e.classList.add('on'); }
+function clearErr(){ document.getElementById('errBox').classList.remove('on'); }
+function toast(txt,ms){ var t=document.getElementById('toast'); t.textContent=txt; t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove('on');},ms||2600); }
+
+/* ════════════════════════════════════════════
+   SERVICE WORKER + PWA
+════════════════════════════════════════════ */
+if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(function(){});
+var deferredInstall;
+window.addEventListener('beforeinstallprompt',function(e){
+  e.preventDefault(); deferredInstall=e;
+  setTimeout(function(){
+    if(!deferredInstall) return;
+    var b=document.createElement('div');
+    b.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--bdr);border-radius:30px;padding:10px 20px;z-index:400;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;box-shadow:0 4px 40px rgba(0,0,0,.7);white-space:nowrap;';
+    b.innerHTML='<span>📲 Install 1Promise as an app</span><button onclick="doPWAInstall(this.parentElement)" style="background:var(--gold);color:var(--bg);border:none;border-radius:20px;padding:5px 14px;font-weight:700;font-size:12px;cursor:pointer;">INSTALL</button><button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;line-height:1;">✕</button>';
+    document.body.appendChild(b); setTimeout(function(){if(b.parentElement)b.remove();},15000);
+  },14000);
+});
+function doPWAInstall(el){ if(deferredInstall){deferredInstall.prompt();deferredInstall=null;} if(el)el.remove(); }
 </script>
 </body>
 </html>
