@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"/>
+<meta name="theme-color" content="#05101f"/>
+<title>Drain the Swamp — 1Promise</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#05101f; --bg2:#0b1e35; --bg3:#112644;
+  --gold:#f2a100; --gold2:#ffd166;
+  --red:#e63946; --green:#2ec4b6; --cream:#f0ead8; --muted:#7a96b0;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);touch-action:none;}
+body{font-family:'DM Sans',sans-serif;color:var(--cream);user-select:none;-webkit-user-select:none;}
+
+/* ── SCREENS ── */
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;transition:opacity .3s;z-index:10;}
+.screen.hidden{opacity:0;pointer-events:none;}
+
+/* ── START SCREEN ── */
+#startScreen{background:var(--bg);}
+.game-logo{font-family:'Bebas Neue',sans-serif;font-size:64px;letter-spacing:-1px;line-height:1;background:linear-gradient(160deg,#fff,var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 40px rgba(242,161,0,.4));animation:pop .6s cubic-bezier(.34,1.56,.64,1);}
+@keyframes pop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.game-sub{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--muted);margin-top:6px;}
+.game-desc{font-size:14px;color:var(--muted);line-height:1.6;max-width:300px;margin:16px auto;}
+.emoji-preview{font-size:48px;margin:16px 0;animation:float 2s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.hi-display{background:rgba(242,161,0,.1);border:1px solid rgba(242,161,0,.25);border-radius:12px;padding:10px 20px;margin:12px auto;font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);letter-spacing:1px;}
+.btn-start{
+  background:var(--gold);color:var(--bg);
+  border:none;border-radius:12px;padding:18px 40px;
+  font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;
+  cursor:pointer;margin-top:20px;
+  box-shadow:0 0 40px rgba(242,161,0,.4);
+  animation:glow 2s ease-in-out infinite;
+  transition:transform .1s;
+}
+.btn-start:active{transform:scale(.96);}
+@keyframes glow{0%,100%{box-shadow:0 0 30px rgba(242,161,0,.35)}50%{box-shadow:0 0 60px rgba(242,161,0,.7)}}
+.how-to{font-size:12px;color:var(--muted);opacity:.6;margin-top:16px;line-height:1.8;}
+
+/* ── HUD ── */
+#hud{
+  position:absolute;top:0;left:0;right:0;z-index:20;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:env(safe-area-inset-top,12px) 16px 12px;
+  background:linear-gradient(180deg,rgba(5,16,31,.95) 0%,transparent 100%);
+  pointer-events:none;
+}
+#hud.hidden{display:none;}
+.hud-block{text-align:center;}
+.hud-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
+.hud-val{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;line-height:1;}
+.hud-val.gold{color:var(--gold);}
+.hud-val.green{color:var(--green);}
+.hud-val.red{color:var(--red);}
+
+/* lives hearts */
+.hearts{display:flex;gap:4px;justify-content:center;font-size:20px;}
+
+/* ── CANVAS ── */
+#gameCanvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;}
+
+/* ── WAVE ANNOUNCE ── */
+#waveAnnounce{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:3px;
+  color:var(--gold);text-shadow:0 0 40px rgba(242,161,0,.8);
+  pointer-events:none;z-index:30;opacity:0;transition:opacity .2s;
+  text-align:center;line-height:1.1;
+}
+#waveAnnounce.show{opacity:1;}
+
+/* ── COMBO POPUP ── */
+.combo-pop{
+  position:absolute;pointer-events:none;z-index:25;
+  font-family:'Bebas Neue',sans-serif;font-size:28px;
+  color:var(--gold2);text-shadow:0 0 20px var(--gold);
+  animation:comboPop .7s ease forwards;
+}
+@keyframes comboPop{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-60px) scale(1.4);opacity:0}}
+
+/* ── PAUSE BTN ── */
+#pauseBtn{
+  position:absolute;top:12px;right:16px;z-index:25;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  border-radius:8px;padding:6px 12px;font-size:18px;cursor:pointer;
+  color:var(--cream);pointer-events:all;
+}
+#pauseBtn.hidden{display:none;}
+
+/* ── GAME OVER SCREEN ── */
+#gameOverScreen{background:rgba(5,16,31,.97);}
+.go-title{font-family:'Bebas Neue',sans-serif;font-size:64px;letter-spacing:-1px;color:var(--red);text-shadow:0 0 40px rgba(230,57,70,.5);animation:shake .4s ease;}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.go-score{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:1px;color:var(--cream);margin:8px 0;}
+.go-hi{font-size:14px;color:var(--gold);margin-bottom:20px;}
+.go-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:280px;margin:0 auto 20px;}
+.go-stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px 8px;text-align:center;}
+.go-stat-n{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold);}
+.go-stat-l{font-size:11px;color:var(--muted);}
+.go-cta{
+  background:rgba(46,196,182,.15);border:1.5px solid rgba(46,196,182,.4);
+  border-radius:10px;padding:14px 20px;
+  font-size:13px;color:var(--green);line-height:1.6;
+  max-width:300px;margin:0 auto 16px;
+}
+.go-cta strong{color:var(--cream);}
+.btn-row{display:flex;gap:10px;width:100%;max-width:280px;}
+.btn-go{flex:1;padding:15px;border-radius:10px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;cursor:pointer;border:none;transition:transform .1s,filter .15s;}
+.btn-go:active{transform:scale(.97);}
+.btn-go.primary{background:var(--gold);color:var(--bg);}
+.btn-go.secondary{background:rgba(255,255,255,.06);color:var(--cream);border:1.5px solid rgba(255,255,255,.12);}
+
+/* ── PAUSE SCREEN ── */
+#pauseScreen{background:rgba(5,16,31,.95);}
+.pause-title{font-family:'Bebas Neue',sans-serif;font-size:56px;color:var(--gold);letter-spacing:2px;}
+
+/* ── BACK LINK ── */
+.back-link{
+  position:absolute;bottom:20px;left:50%;transform:translateX(-50%);
+  color:var(--muted);font-size:12px;text-decoration:none;opacity:.5;
+  z-index:50;transition:opacity .2s;
+}
+.back-link:hover{opacity:.9;}
+</style>
+</head>
+<body>
+
+<canvas id="gameCanvas"></canvas>
+
+<!-- HUD -->
+<div id="hud" class="hidden">
+  <div class="hud-block">
+    <div class="hud-label">Score</div>
+    <div class="hud-val gold" id="hudScore">0</div>
+  </div>
+  <div class="hud-block">
+    <div class="hud-label">Wave</div>
+    <div class="hud-val" id="hudWave">1</div>
+  </div>
+  <div class="hud-block">
+    <div class="hud-label">Lives</div>
+    <div class="hearts" id="hudHearts">❤️❤️❤️</div>
+  </div>
+</div>
+
+<button id="pauseBtn" class="hidden" onclick="togglePause()">⏸</button>
+
+<!-- WAVE ANNOUNCE -->
+<div id="waveAnnounce"></div>
+
+<!-- START SCREEN -->
+<div class="screen" id="startScreen">
+  <div class="game-logo">DRAIN THE<br/>SWAMP</div>
+  <div class="game-sub">A 1Promise Arcade Game</div>
+  <div class="emoji-preview">💰🤑💸</div>
+  <div class="game-desc">
+    Lobbyists are dropping money bags to buy your Congress.<br/>
+    <strong style="color:var(--gold)">Tap or click to crush them</strong> before they hit the floor.<br/>
+    Don't let 3 get through!
+  </div>
+  <div class="hi-display" id="startHi">🏆 Best Score: 0</div>
+  <button class="btn-start" onclick="startGame()">▶ PLAY NOW</button>
+  <div class="how-to">
+    💰 Money bag = 10pts &nbsp;|&nbsp; 🤑 Fat cat = 25pts<br/>
+    ⚡ Combo = bonus points &nbsp;|&nbsp; 🌟 Golden bag = 50pts<br/>
+    Waves get faster. How long can you hold them off?
+  </div>
+</div>
+
+<!-- GAME OVER SCREEN -->
+<div class="screen hidden" id="gameOverScreen">
+  <div class="go-title">BOUGHT!</div>
+  <div class="go-score" id="goScore">Score: 0</div>
+  <div class="go-hi" id="goHi">Best: 0</div>
+  <div class="go-stats">
+    <div class="go-stat"><div class="go-stat-n" id="statCrushed">0</div><div class="go-stat-l">Crushed</div></div>
+    <div class="go-stat"><div class="go-stat-n" id="statWave">1</div><div class="go-stat-l">Wave Reached</div></div>
+    <div class="go-stat"><div class="go-stat-n" id="statCombo">0</div><div class="go-stat-l">Best Combo</div></div>
+    <div class="go-stat"><div class="go-stat-n" id="statMissed">0</div><div class="go-stat-l">Got Through</div></div>
+  </div>
+  <div class="go-cta">
+    <strong>While you're here —</strong> contact your reps about the American Promise Act. Takes 60 seconds. Way harder to ignore than a game. 👆
+  </div>
+  <div class="btn-row">
+    <button class="btn-go primary" onclick="startGame()">▶ RETRY</button>
+    <button class="btn-go secondary" onclick="shareScore()">🔗 Share</button>
+  </div>
+</div>
+
+<!-- PAUSE SCREEN -->
+<div class="screen hidden" id="pauseScreen">
+  <div class="pause-title">PAUSED</div>
+  <div style="font-size:14px;color:var(--muted);margin:12px 0 24px;">Lobbyists are frozen.<br/>For now.</div>
+  <button class="btn-go primary" style="max-width:220px;width:100%;padding:16px;" onclick="togglePause()">▶ RESUME</button>
+  <button class="btn-go secondary" style="max-width:220px;width:100%;padding:14px;margin-top:10px;border-radius:10px;font-family:'Bebas Neue',sans-serif;font-size:16px;cursor:pointer;" onclick="goToMenu()">↩ MENU</button>
+</div>
+
+<a class="back-link" href="index.html">← Back to 1Promise</a>
+
+<script>
+'use strict';
+/* ═══════════════════════════════════════
+   CANVAS SETUP
+═══════════════════════════════════════ */
+var canvas = document.getElementById('gameCanvas');
+var ctx = canvas.getContext('2d');
+var W, H;
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+/* ═══════════════════════════════════════
+   GAME STATE
+═══════════════════════════════════════ */
+var score=0, lives=3, wave=1, combo=0, bestCombo=0;
+var crushed=0, missed=0;
+var running=false, paused=false;
+var enemies=[], particles=[], shakes=[];
+var frameId=null;
+var lastTime=0;
+var spawnTimer=0, spawnInterval=1400;
+var waveTimer=0, WAVE_DURATION=18000;
+var groundY;
+var flashTimer=0;
+
+/* Enemy types */
+var TYPES = [
+  {emoji:'💰', pts:10,  speed:1.0, size:52, prob:0.55, label:'Lobbyist'},
+  {emoji:'🤑', pts:25,  speed:0.8, size:60, prob:0.25, label:'Fat Cat'},
+  {emoji:'🌟', pts:50,  speed:1.3, size:48, prob:0.10, label:'Golden Bag'},
+  {emoji:'🏦', pts:15,  speed:0.65,size:64, prob:0.07, label:'Big Bank'},
+  {emoji:'🐍', pts:35,  speed:1.5, size:44, prob:0.03, label:'Snake'},
+];
+
+/* ═══════════════════════════════════════
+   HIGH SCORE
+═══════════════════════════════════════ */
+function getHi() { return parseInt(localStorage.getItem('1p_game_hi')||'0'); }
+function setHi(s) { if(s>getHi()) localStorage.setItem('1p_game_hi',s); }
+document.getElementById('startHi').textContent = '🏆 Best Score: '+getHi().toLocaleString();
+
+/* ═══════════════════════════════════════
+   SCREENS
+═══════════════════════════════════════ */
+function show(id) { document.getElementById(id).classList.remove('hidden'); }
+function hide(id) { document.getElementById(id).classList.add('hidden'); }
+function showScreen(id) {
+  ['startScreen','gameOverScreen','pauseScreen'].forEach(function(s){
+    document.getElementById(s).classList.add('hidden');
+  });
+  if(id) show(id);
+}
+
+/* ═══════════════════════════════════════
+   START
+═══════════════════════════════════════ */
+function startGame() {
+  score=0; lives=3; wave=1; combo=0; bestCombo=0;
+  crushed=0; missed=0; spawnTimer=0; waveTimer=0;
+  spawnInterval=1400; enemies=[]; particles=[];
+  running=true; paused=false;
+  groundY = H - 60;
+  showScreen(null);
+  show('hud');
+  show('pauseBtn');
+  updateHUD();
+  announceWave(wave);
+  if(frameId) cancelAnimationFrame(frameId);
+  lastTime=0;
+  frameId=requestAnimationFrame(loop);
+}
+
+function goToMenu() {
+  running=false; paused=false;
+  if(frameId) cancelAnimationFrame(frameId);
+  enemies=[]; particles=[];
+  hide('hud'); hide('pauseBtn');
+  showScreen('startScreen');
+  document.getElementById('startHi').textContent='🏆 Best Score: '+getHi().toLocaleString();
+}
+
+/* ═══════════════════════════════════════
+   PAUSE
+═══════════════════════════════════════ */
+function togglePause() {
+  if(!running) return;
+  paused=!paused;
+  document.getElementById('pauseBtn').textContent = paused?'▶':'⏸';
+  if(paused) { showScreen('pauseScreen'); show('hud'); }
+  else { showScreen(null); show('hud'); show('pauseBtn'); lastTime=0; frameId=requestAnimationFrame(loop); }
+}
+
+/* ═══════════════════════════════════════
+   SPAWN
+═══════════════════════════════════════ */
+function pickType() {
+  var r=Math.random(), acc=0;
+  for(var i=0;i<TYPES.length;i++) { acc+=TYPES[i].prob; if(r<acc) return TYPES[i]; }
+  return TYPES[0];
+}
+function spawnEnemy() {
+  var t=pickType();
+  var size=t.size*(0.85+Math.random()*0.3);
+  var speedMult=1+(wave-1)*0.12;
+  var wobble=(Math.random()-.5)*0.8;
+  enemies.push({
+    x: size/2 + Math.random()*(W-size),
+    y: -size,
+    size: size,
+    speed: t.speed*speedMult*(0.9+Math.random()*.3),
+    wobble: wobble,
+    wobblePhase: Math.random()*Math.PI*2,
+    emoji: t.emoji,
+    pts: t.pts,
+    type: t.label,
+    rot: (Math.random()-.5)*.3,
+    scale: 1,
+    squish: 1,
+    alive: true,
+    crushAnim: 0,
+  });
+}
+
+/* ═══════════════════════════════════════
+   PARTICLES
+═══════════════════════════════════════ */
+function burst(x, y, color, count) {
+  for(var i=0;i<count;i++) {
+    var angle=Math.random()*Math.PI*2;
+    var speed=2+Math.random()*5;
+    particles.push({
+      x:x, y:y,
+      vx:Math.cos(angle)*speed,
+      vy:Math.sin(angle)*speed-2,
+      r:3+Math.random()*5,
+      color:color,
+      life:1, decay:0.03+Math.random()*0.03
+    });
+  }
+}
+
+/* ═══════════════════════════════════════
+   DRAW
+═══════════════════════════════════════ */
+function drawBackground() {
+  // Sky gradient
+  var grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'#05101f');
+  grad.addColorStop(1,'#0b1e35');
+  ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
+
+  // Stars
+  ctx.fillStyle='rgba(242,161,0,0.15)';
+  for(var i=0;i<40;i++) {
+    var sx=(i*137.5)%W, sy=(i*97.3)%groundY;
+    ctx.beginPath(); ctx.arc(sx,sy,0.8,0,Math.PI*2); ctx.fill();
+  }
+
+  // Capitol building silhouette at bottom
+  ctx.fillStyle='#0d2040';
+  // ground
+  ctx.fillRect(0,groundY,W,H-groundY);
+  // dome
+  var cx=W/2;
+  ctx.beginPath();
+  ctx.arc(cx,groundY,50,Math.PI,0); ctx.fill();
+  ctx.fillRect(cx-8,groundY-70,16,70);
+  // wings
+  ctx.fillRect(cx-90,groundY-30,180,30);
+  // pillars
+  for(var p=0;p<6;p++) {
+    ctx.fillRect(cx-70+p*28,groundY-28,8,28);
+  }
+  ctx.fillStyle='rgba(242,161,0,0.1)';
+  ctx.fillRect(0,groundY,W,2);
+
+  // ground label
+  ctx.font='bold 11px DM Sans,sans-serif';
+  ctx.fillStyle='rgba(242,161,0,0.3)';
+  ctx.textAlign='center';
+  ctx.fillText('CONGRESS', cx, groundY+20);
+}
+
+function drawEnemy(e) {
+  if(!e.alive&&e.crushAnim<=0) return;
+  ctx.save();
+  ctx.translate(e.x, e.y);
+  ctx.rotate(e.rot);
+  var sc = e.alive ? (1+Math.sin(e.wobblePhase)*0.04) : (1-e.crushAnim*0.5);
+  var sq = e.alive ? 1 : (1+e.crushAnim*0.4);
+  ctx.scale(sc, sc*sq);
+
+  if(!e.alive) ctx.globalAlpha=1-e.crushAnim;
+
+  ctx.font = e.size+'px serif';
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.fillText(e.emoji,0,0);
+
+  // pulse ring on near-miss warning
+  if(e.alive && e.y > groundY - 120) {
+    var danger=(e.y-(groundY-120))/120;
+    ctx.strokeStyle='rgba(230,57,70,'+danger*0.6+')';
+    ctx.lineWidth=3;
+    ctx.beginPath();
+    ctx.arc(0,0,e.size/2+8+Math.sin(Date.now()/80)*4,0,Math.PI*2);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawParticles() {
+  particles.forEach(function(p) {
+    ctx.save();
+    ctx.globalAlpha=p.life;
+    ctx.fillStyle=p.color;
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r*p.life,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  });
+}
+
+function drawFlash() {
+  if(flashTimer>0) {
+    ctx.save();
+    ctx.globalAlpha=flashTimer*0.25;
+    ctx.fillStyle='#e63946';
+    ctx.fillRect(0,0,W,H);
+    ctx.restore();
+  }
+}
+
+function drawComboMeter() {
+  if(combo<2) return;
+  var label = combo>=10?'🔥 UNSTOPPABLE!':combo>=7?'⚡ ON FIRE!':combo>=5?'💥 CRUSHING IT!':'✨ COMBO x'+combo;
+  ctx.save();
+  ctx.globalAlpha=Math.min(1,(combo-1)*0.2);
+  ctx.font='bold 18px Bebas Neue,sans-serif';
+  ctx.textAlign='center';
+  ctx.fillStyle=combo>=7?'#ff6b6b':combo>=5?'#ffd166':'#f2a100';
+  ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=20;
+  ctx.fillText(label,W/2,H-groundY+groundY*0.15);
+  ctx.restore();
+}
+
+/* ═══════════════════════════════════════
+   UPDATE
+═══════════════════════════════════════ */
+function update(dt) {
+  spawnTimer+=dt;
+  waveTimer+=dt;
+
+  if(spawnTimer>=spawnInterval) {
+    spawnTimer=0;
+    spawnEnemy();
+    if(enemies.length<wave+2) spawnEnemy(); // extra for later waves
+  }
+
+  // Wave progression
+  if(waveTimer>=WAVE_DURATION) {
+    waveTimer=0; wave++;
+    spawnInterval=Math.max(400, spawnInterval-100);
+    announceWave(wave);
+  }
+
+  // flash decay
+  if(flashTimer>0) flashTimer=Math.max(0,flashTimer-dt*0.005);
+
+  enemies.forEach(function(e) {
+    if(!e.alive) { e.crushAnim=Math.min(1,e.crushAnim+(dt/150)); return; }
+    e.wobblePhase+=dt*0.003;
+    e.y+=e.speed*(dt/16);
+    e.x+=Math.sin(e.wobblePhase)*e.wobble;
+    e.x=Math.max(e.size/2,Math.min(W-e.size/2,e.x));
+
+    if(e.y>=groundY-e.size*0.2) {
+      e.alive=false;
+      missed++;
+      combo=0;
+      lives=Math.max(0,lives-1);
+      flashTimer=1;
+      updateHUD();
+      burst(e.x,groundY,'rgba(230,57,70,0.8)',12);
+      if(lives<=0) setTimeout(gameOver,200);
+    }
+  });
+
+  // Clean up dead enemies fully animated
+  enemies=enemies.filter(function(e){return e.alive||(e.crushAnim<1);});
+
+  // Particles
+  particles.forEach(function(p){
+    p.x+=p.vx; p.y+=p.vy; p.vy+=0.15;
+    p.life=Math.max(0,p.life-p.decay);
+  });
+  particles=particles.filter(function(p){return p.life>0;});
+}
+
+/* ═══════════════════════════════════════
+   GAME LOOP
+═══════════════════════════════════════ */
+function loop(ts) {
+  if(!running||paused) return;
+  var dt=lastTime?Math.min(ts-lastTime,60):16;
+  lastTime=ts;
+  update(dt);
+  ctx.clearRect(0,0,W,H);
+  drawBackground();
+  drawParticles();
+  enemies.forEach(drawEnemy);
+  drawFlash();
+  drawComboMeter();
+  frameId=requestAnimationFrame(loop);
+}
+
+/* ═══════════════════════════════════════
+   HIT DETECTION
+═══════════════════════════════════════ */
+function handleHit(cx,cy) {
+  if(!running||paused) return;
+  var hit=false;
+  for(var i=enemies.length-1;i>=0;i--) {
+    var e=enemies[i];
+    if(!e.alive) continue;
+    var dx=cx-e.x, dy=cy-e.y;
+    var dist=Math.sqrt(dx*dx+dy*dy);
+    if(dist<e.size*0.55) {
+      e.alive=false;
+      e.crushAnim=0;
+      combo++;
+      if(combo>bestCombo) bestCombo=combo;
+      var bonus=combo>=10?4:combo>=7?3:combo>=5?2:combo>=3?1.5:1;
+      var pts=Math.round(e.pts*bonus);
+      score+=pts;
+      crushed++;
+      updateHUD();
+
+      // particles
+      burst(e.x,e.y,'rgba(242,161,0,0.9)',combo>=5?20:12);
+      if(combo>=3) burst(e.x,e.y,'rgba(255,255,255,0.5)',8);
+
+      // floating score popup
+      showComboPopup(e.x,e.y,'+'+pts+(combo>=3?' x'+combo:''));
+      hit=true;
+      break;
+    }
+  }
+  if(!hit) { combo=0; }
+}
+
+function showComboPopup(x,y,text) {
+  var el=document.createElement('div');
+  el.className='combo-pop';
+  el.textContent=text;
+  el.style.left=x+'px'; el.style.top=y+'px';
+  el.style.transform='translate(-50%,-50%)';
+  el.style.color=combo>=7?'#ff6b6b':combo>=5?'#ffd166':'#f2a100';
+  el.style.fontSize=(combo>=7?36:combo>=5?30:24)+'px';
+  document.body.appendChild(el);
+  setTimeout(function(){el.remove();},700);
+}
+
+/* ═══════════════════════════════════════
+   INPUT
+═══════════════════════════════════════ */
+canvas.addEventListener('click',function(e){
+  handleHit(e.clientX,e.clientY);
+});
+canvas.addEventListener('touchstart',function(e){
+  e.preventDefault();
+  Array.from(e.changedTouches).forEach(function(t){
+    handleHit(t.clientX,t.clientY);
+  });
+},{passive:false});
+
+/* ═══════════════════════════════════════
+   HUD
+═══════════════════════════════════════ */
+function updateHUD() {
+  document.getElementById('hudScore').textContent=score.toLocaleString();
+  document.getElementById('hudWave').textContent=wave;
+  var h=''; for(var i=0;i<3;i++) h+=i<lives?'❤️':'🖤';
+  document.getElementById('hudHearts').textContent=h;
+}
+
+/* ═══════════════════════════════════════
+   WAVE ANNOUNCE
+═══════════════════════════════════════ */
+function announceWave(w) {
+  var msgs=['WAVE '+w,'LOBBYISTS INCOMING!','THEY\'RE BUYING CONGRESS!','HOLD THE LINE!','DON\'T LET THEM THROUGH!'];
+  var el=document.getElementById('waveAnnounce');
+  el.innerHTML='WAVE '+w+'<br/><span style="font-size:24px;color:#7a96b0;">'+msgs[Math.min(w,msgs.length-1)]+'</span>';
+  el.classList.add('show');
+  setTimeout(function(){el.classList.remove('show');},2000);
+}
+
+/* ═══════════════════════════════════════
+   GAME OVER
+═══════════════════════════════════════ */
+function gameOver() {
+  running=false;
+  setHi(score);
+  hide('hud'); hide('pauseBtn');
+  document.getElementById('goScore').textContent='Score: '+score.toLocaleString();
+  document.getElementById('goHi').textContent='🏆 Best: '+getHi().toLocaleString();
+  document.getElementById('statCrushed').textContent=crushed;
+  document.getElementById('statWave').textContent=wave;
+  document.getElementById('statCombo').textContent=bestCombo+'x';
+  document.getElementById('statMissed').textContent=missed;
+  showScreen('gameOverScreen');
+}
+
+/* ═══════════════════════════════════════
+   SHARE SCORE
+═══════════════════════════════════════ */
+function shareScore() {
+  var text='I scored '+score.toLocaleString()+' on Drain the Swamp 🏛️💰 (Wave '+wave+', '+crushed+' lobbyists crushed!)\n\nPlay at 1Promise — then contact your real reps about the American Promise Act:';
+  if(navigator.share) {
+    navigator.share({title:'Drain the Swamp',text:text,url:location.href.replace('game.html','index.html')}).catch(function(){});
+  } else {
+    navigator.clipboard.writeText(text+'\n'+location.href.replace('game.html','index.html')).then(function(){
+      alert('Score copied! Paste it anywhere to challenge your friends.');
+    });
+  }
+}
+
+/* ═══════════════════════════════════════
+   KEYBOARD
+═══════════════════════════════════════ */
+window.addEventListener('keydown',function(e){
+  if(e.key==='Escape'||e.key==='p'||e.key==='P') togglePause();
+});
+</script>
+</body>
+</html>
