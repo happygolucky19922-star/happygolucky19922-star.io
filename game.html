@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"/>
+<meta name="theme-color" content="#080c14"/>
+<title>Drain the Swamp — 1Promise</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700&family=Special+Elite&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#080c14;--bg2:#0d1525;--bg3:#121e35;
+  --gold:#f2a100;--gold2:#ffd166;--red:#e63946;
+  --green:#2ec4b6;--cream:#f0ead8;--muted:#6a8aaa;
+  --ink:#1a0a00;
+}
+html,body{height:100%;background:var(--bg);color:var(--cream);font-family:'DM Sans',sans-serif;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;}
+
+canvas{position:absolute;inset:0;width:100%;height:100%;}
+#uiLayer{position:absolute;inset:0;pointer-events:none;z-index:10;}
+#uiLayer>*{pointer-events:all;}
+
+/* ── SCREENS ── */
+.scr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;z-index:20;transition:opacity .4s;}
+.scr.off{opacity:0;pointer-events:none;}
+
+/* ── TYPOGRAPHY ── */
+.headline{font-family:'Bebas Neue',sans-serif;letter-spacing:1px;}
+.editorial{font-family:'Special Elite',serif;}
+
+/* ── STATE SELECT ── */
+#stateScr{background:radial-gradient(ellipse at 50% 30%,#1a0a00 0%,#080c14 70%);}
+.state-logo{font-family:'Bebas Neue',sans-serif;font-size:72px;letter-spacing:-2px;background:linear-gradient(160deg,#fff,var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 50px rgba(242,161,0,.5));line-height:.9;}
+.state-sub{font-family:'Special Elite',serif;font-size:16px;color:var(--muted);margin:8px 0 24px;}
+.state-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;width:100%;max-width:400px;max-height:240px;overflow-y:auto;margin-bottom:16px;}
+.state-grid::-webkit-scrollbar{width:3px;}
+.state-grid::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px;}
+.state-btn{padding:6px 4px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:6px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;text-align:center;}
+.state-btn:hover,.state-btn.sel{background:rgba(242,161,0,.15);border-color:rgba(242,161,0,.4);color:var(--gold);}
+.btn-big{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;background:var(--gold);color:var(--ink);border:none;border-radius:12px;padding:16px 40px;cursor:pointer;margin-top:8px;box-shadow:0 0 40px rgba(242,161,0,.4);animation:glow 2s ease-in-out infinite;transition:transform .1s;}
+.btn-big:active{transform:scale(.96);}
+.btn-big:disabled{opacity:.4;cursor:not-allowed;animation:none;}
+@keyframes glow{0%,100%{box-shadow:0 0 30px rgba(242,161,0,.3)}50%{box-shadow:0 0 70px rgba(242,161,0,.7)}}
+
+/* ── HUD ── */
+#hud{position:absolute;top:0;left:0;right:0;z-index:15;background:linear-gradient(180deg,rgba(8,12,20,.98) 80%,transparent);padding:env(safe-area-inset-top,8px) 12px 12px;pointer-events:none;}
+.hud-row{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.hud-block{text-align:center;min-width:60px;}
+.hud-lbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.hud-val{font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1;color:var(--cream);}
+.hud-val.gold{color:var(--gold);}
+.hud-val.red{color:var(--red);}
+.hud-val.green{color:var(--green);}
+.hearts{font-size:18px;letter-spacing:2px;}
+.stage-bar{height:3px;background:rgba(255,255,255,.08);border-radius:3px;margin-top:6px;overflow:hidden;}
+.stage-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:3px;transition:width .4s ease;}
+.stage-label{font-size:10px;color:var(--muted);text-align:center;margin-top:3px;letter-spacing:1px;font-family:'Special Elite',serif;}
+
+/* ── PAUSE BTN ── */
+#pauseBtn{position:absolute;top:10px;right:12px;z-index:16;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:5px 11px;font-size:16px;cursor:pointer;color:var(--cream);pointer-events:all;}
+
+/* ── ANNOUNCER ── */
+#announcer{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:30;text-align:center;pointer-events:none;opacity:0;transition:opacity .25s;}
+#announcer.show{opacity:1;}
+.ann-title{font-family:'Bebas Neue',sans-serif;font-size:56px;letter-spacing:2px;text-shadow:0 0 40px currentColor;line-height:1;}
+.ann-sub{font-family:'Special Elite',serif;font-size:18px;color:var(--muted);margin-top:4px;}
+
+/* ── EVENT TICKER ── */
+#ticker{position:absolute;bottom:80px;left:0;right:0;z-index:25;pointer-events:none;display:flex;align-items:center;justify-content:center;}
+.ticker-inner{background:var(--red);padding:8px 20px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#fff;border-radius:4px;text-align:center;max-width:380px;animation:tickerIn .4s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 30px rgba(230,57,70,.6);}
+@keyframes tickerIn{from{transform:scale(.7) translateY(20px);opacity:0}to{transform:none;opacity:1}}
+
+/* ── FLOATING TEXT ── */
+.float-txt{position:absolute;pointer-events:none;z-index:20;font-family:'Bebas Neue',sans-serif;animation:floatUp .8s ease forwards;}
+@keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-80px) scale(1.3)}}
+
+/* ── COMBO RING ── */
+#comboRing{position:absolute;bottom:100px;left:50%;transform:translateX(-50%);z-index:20;pointer-events:none;text-align:center;transition:opacity .3s;}
+.combo-txt{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--gold);text-shadow:0 0 20px var(--gold);}
+.combo-sub{font-size:11px;color:var(--muted);letter-spacing:1px;}
+
+/* ── SHOP SCREEN ── */
+#shopScr{background:radial-gradient(ellipse at 50% 0%,#1a0800 0%,#080c14 60%);}
+.shop-title{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:2px;color:var(--gold);text-shadow:0 0 30px rgba(242,161,0,.5);}
+.shop-sub{font-size:13px;color:var(--muted);margin:4px 0 16px;font-family:'Special Elite',serif;}
+.power-display{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--green);margin-bottom:14px;background:rgba(46,196,182,.1);border:1px solid rgba(46,196,182,.25);padding:8px 20px;border-radius:20px;}
+.shop-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:420px;max-height:45vh;overflow-y:auto;margin-bottom:14px;}
+.shop-grid::-webkit-scrollbar{width:3px;}
+.shop-grid::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px;}
+.shop-item{background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:10px;padding:12px 10px;cursor:pointer;transition:all .2s;text-align:left;}
+.shop-item:hover{border-color:rgba(242,161,0,.4);background:rgba(242,161,0,.07);}
+.shop-item.owned{border-color:rgba(46,196,182,.4);background:rgba(46,196,182,.07);cursor:default;}
+.shop-item.cant-afford{opacity:.4;cursor:not-allowed;}
+.shop-icon{font-size:28px;margin-bottom:4px;}
+.shop-name{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.5px;color:var(--cream);}
+.shop-desc{font-size:10px;color:var(--muted);line-height:1.4;margin-top:2px;}
+.shop-cost{font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--gold);margin-top:6px;}
+.shop-cost.owned{color:var(--green);}
+.btn-continue{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;background:var(--gold);color:var(--ink);border:none;border-radius:12px;padding:14px 36px;cursor:pointer;transition:transform .1s,filter .15s;}
+.btn-continue:hover{filter:brightness(1.1);}
+.btn-continue:active{transform:scale(.97);}
+
+/* ── GAME OVER / LOSS SCREENS ── */
+#lossScr{background:#080c14;}
+.news-ticker-bar{background:var(--red);padding:8px 16px;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:#fff;width:100%;text-align:center;margin-bottom:0;}
+.news-main{background:#0d0d0d;border:2px solid #222;border-radius:0;padding:20px;width:100%;max-width:420px;margin:0 auto;text-align:left;}
+.news-headline{font-family:'Special Elite',serif;font-size:22px;color:#fff;line-height:1.3;margin-bottom:10px;}
+.news-byline{font-size:11px;color:#666;margin-bottom:12px;border-bottom:1px solid #222;padding-bottom:10px;}
+.news-body{font-family:'Special Elite',serif;font-size:13px;color:#aaa;line-height:1.7;}
+.news-body strong{color:#fff;}
+.loss-score-bar{display:flex;justify-content:space-between;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px 16px;margin:12px 0;width:100%;max-width:420px;}
+.ls-block{text-align:center;}
+.ls-num{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--gold);}
+.ls-lbl{font-size:10px;color:var(--muted);}
+.loss-btns{display:flex;gap:8px;width:100%;max-width:420px;}
+.loss-btn{flex:1;padding:14px;border-radius:10px;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1px;cursor:pointer;border:none;transition:transform .1s;}
+.loss-btn:active{transform:scale(.97);}
+.loss-btn.primary{background:var(--gold);color:var(--ink);}
+.loss-btn.secondary{background:rgba(255,255,255,.06);color:var(--cream);border:1.5px solid rgba(255,255,255,.12);}
+
+/* ── VICTORY SCREEN ── */
+#victoryScr{background:radial-gradient(ellipse at 50% 40%,#0a2000 0%,#080c14 70%);}
+.vic-title{font-family:'Bebas Neue',sans-serif;font-size:72px;letter-spacing:-1px;line-height:.9;background:linear-gradient(160deg,#fff,var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 60px rgba(242,161,0,.6));animation:vcPop .6s cubic-bezier(.34,1.56,.64,1);}
+@keyframes vcPop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.vic-sub{font-family:'Special Elite',serif;font-size:18px;color:var(--muted);margin:8px 0 20px;}
+.vic-badge{background:linear-gradient(135deg,rgba(242,161,0,.15),rgba(242,161,0,.05));border:2px solid var(--gold);border-radius:16px;padding:20px 28px;max-width:360px;width:100%;margin-bottom:20px;}
+.vic-badge-title{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:3px;color:var(--gold);margin-bottom:4px;}
+.vic-badge-state{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--cream);}
+.vic-badge-sub{font-size:12px;color:var(--muted);margin-top:4px;}
+.vic-cta{background:linear-gradient(135deg,rgba(46,196,182,.15),rgba(46,196,182,.05));border:2px solid var(--green);border-radius:14px;padding:18px 20px;max-width:360px;width:100%;text-align:center;margin-bottom:16px;}
+.vic-cta-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--green);margin-bottom:6px;}
+.vic-cta-body{font-size:13px;color:rgba(240,234,216,.75);line-height:1.65;}
+.vic-btns{display:flex;flex-direction:column;gap:8px;width:100%;max-width:360px;}
+.vic-btn{padding:15px;border-radius:12px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;cursor:pointer;border:none;transition:transform .1s,filter .15s;text-decoration:none;text-align:center;display:block;}
+.vic-btn:active{transform:scale(.97);}
+.vic-btn.gold{background:var(--gold);color:var(--ink);}
+.vic-btn.green{background:var(--green);color:var(--ink);}
+.vic-btn.ghost{background:rgba(255,255,255,.06);color:var(--cream);border:1.5px solid rgba(255,255,255,.12);}
+
+/* ── LEADERBOARD ── */
+#lbPanel{position:absolute;bottom:0;left:0;right:0;z-index:50;background:var(--bg2);border-top:2px solid var(--gold);border-radius:20px 20px 0 0;padding:20px;max-height:70vh;overflow-y:auto;transform:translateY(100%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);}
+#lbPanel.up{transform:translateY(0);}
+.lb-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;color:var(--gold);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;}
+.lb-close{background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer;pointer-events:all;}
+.lb-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.lb-rank{font-family:'Bebas Neue',sans-serif;font-size:20px;width:30px;color:var(--muted);}
+.lb-rank.top{color:var(--gold);}
+.lb-state{font-weight:700;font-size:15px;flex:1;}
+.lb-score{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--green);}
+.lb-crushed{font-size:11px;color:var(--muted);}
+
+/* ── PAUSE SCREEN ── */
+#pauseScr{background:rgba(8,12,20,.97);}
+
+/* ── WEAPON HUD ── */
+#weaponBar{position:absolute;bottom:0;left:0;right:0;z-index:15;background:linear-gradient(0deg,rgba(8,12,20,.98) 80%,transparent);padding:8px 10px env(safe-area-inset-bottom,8px);display:flex;gap:6px;align-items:flex-end;justify-content:center;pointer-events:all;}
+.w-slot{width:52px;height:52px;border-radius:10px;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.1);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:all .15s;flex-shrink:0;}
+.w-slot:hover,.w-slot.active{border-color:var(--gold);background:rgba(242,161,0,.15);}
+.w-slot.empty{opacity:.3;cursor:not-allowed;}
+.w-slot.cooldown{border-color:rgba(255,255,255,.05);}
+.w-icon{font-size:22px;line-height:1;}
+.w-key{font-size:9px;color:var(--muted);font-weight:700;letter-spacing:.5px;}
+.w-cd{position:absolute;inset:0;border-radius:9px;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--cream);}
+.w-count{position:absolute;top:2px;right:4px;font-size:9px;font-weight:700;color:var(--gold);}
+
+/* ── MISC ── */
+.sep{width:80%;height:1px;background:rgba(255,255,255,.06);margin:10px 0;}
+#overlay-darken{position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:12;display:none;}
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<canvas id="gameCanvas"></canvas>
+<canvas id="fxCanvas"></canvas>
+
+<!-- UI LAYER -->
+<div id="uiLayer">
+
+<!-- STATE SELECT -->
+<div class="scr" id="stateScr">
+  <div class="state-logo">DRAIN THE<br/>SWAMP</div>
+  <div class="state-sub editorial">A 1Promise Civic Arcade · Fight for America</div>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Select your state — compete nationally</div>
+  <div class="state-grid" id="stateGrid"></div>
+  <div style="font-size:11px;color:var(--muted);margin-bottom:12px;" id="selLabel">No state selected</div>
+  <button class="btn-big" id="playBtn" disabled onclick="beginGame()">▶ FIGHT FOR AMERICA</button>
+  <div style="font-size:11px;color:var(--muted);opacity:.5;margin-top:12px;">Tap/click to crush · 6 stages · Boss battles · Real stakes</div>
+</div>
+
+<!-- HUD (hidden until game) -->
+<div id="hud" style="display:none;">
+  <div class="hud-row">
+    <div class="hud-block">
+      <div class="hud-lbl">Score</div>
+      <div class="hud-val gold" id="hudScore">0</div>
+    </div>
+    <div class="hud-block">
+      <div class="hud-lbl">Power</div>
+      <div class="hud-val green" id="hudPower">0</div>
+    </div>
+    <div class="hud-block" style="min-width:80px;">
+      <div class="hud-lbl">Lives</div>
+      <div class="hearts" id="hudHearts">❤️❤️❤️</div>
+    </div>
+    <div class="hud-block">
+      <div class="hud-lbl">Wave</div>
+      <div class="hud-val" id="hudWave">1</div>
+    </div>
+  </div>
+  <div class="stage-bar"><div class="stage-fill" id="stageFill" style="width:0%"></div></div>
+  <div class="stage-label" id="stageLabel">K STREET</div>
+</div>
+
+<button id="pauseBtn" style="display:none;" onclick="togglePause()">⏸</button>
+
+<!-- WEAPON BAR -->
+<div id="weaponBar" style="display:none;"></div>
+
+<!-- ANNOUNCER -->
+<div id="announcer"><div class="ann-title" id="annTitle"></div><div class="ann-sub" id="annSub"></div></div>
+
+<!-- EVENT TICKER -->
+<div id="ticker" style="display:none;"></div>
+
+<!-- COMBO RING -->
+<div id="comboRing" style="opacity:0;"></div>
+
+<!-- SHOP SCREEN -->
+<div class="scr off" id="shopScr">
+  <div class="shop-title">⚡ PEOPLE'S ARMORY</div>
+  <div class="shop-sub editorial">Spend your People's Power wisely. The next stage is worse.</div>
+  <div class="power-display" id="shopPower">⚡ 0 People's Power</div>
+  <div class="shop-grid" id="shopGrid"></div>
+  <button class="btn-continue" onclick="continueToNextStage()">ADVANCE TO NEXT STAGE →</button>
+</div>
+
+<!-- LOSS SCREEN -->
+<div class="scr off" id="lossScr">
+  <div class="news-ticker-bar" id="lossTicker">⚠️ BREAKING NEWS</div>
+  <div class="news-main">
+    <div class="news-headline" id="lossHeadline"></div>
+    <div class="news-byline" id" id="lossByline"></div>
+    <div class="news-body" id="lossBody"></div>
+  </div>
+  <div class="loss-score-bar">
+    <div class="ls-block"><div class="ls-num" id="lsScore">0</div><div class="ls-lbl">Score</div></div>
+    <div class="ls-block"><div class="ls-num" id="lsWave">1</div><div class="ls-lbl">Wave</div></div>
+    <div class="ls-block"><div class="ls-num" id="lsCrushed">0</div><div class="ls-lbl">Crushed</div></div>
+    <div class="ls-block"><div class="ls-num" id="lsCombo">0x</div><div class="ls-lbl">Best Combo</div></div>
+  </div>
+  <div class="loss-btns">
+    <button class="loss-btn primary" onclick="retryGame()">▶ RETRY</button>
+    <button class="loss-btn secondary" onclick="shareScore()">🔗 SHARE</button>
+  </div>
+  <button style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;margin-top:10px;text-decoration:underline;" onclick="goMenu()">← Main Menu</button>
+</div>
+
+<!-- VICTORY SCREEN -->
+<div class="scr off" id="victoryScr">
+  <div class="vic-title">THE SWAMP<br/>IS DRAINED.</div>
+  <div class="vic-sub editorial">America needed a fighter. You showed up.</div>
+  <div class="vic-badge">
+    <div class="vic-badge-title">DEFENDER OF THE REPUBLIC</div>
+    <div class="vic-badge-state" id="vicState">Your State</div>
+    <div class="vic-badge-sub" id="vicStats">Score: 0 · Crushed: 0 enemies</div>
+  </div>
+  <div class="vic-cta">
+    <div class="vic-cta-title">Now Do It For Real.</div>
+    <div class="vic-cta-body">You just spent 10 minutes fighting corruption in a game. Spend 60 seconds doing it for real. Contact your representatives about the American Promise Act — one tap, pre-written, no account needed.</div>
+  </div>
+  <div class="vic-btns">
+    <a class="vic-btn green" href="index.html">⚡ CONTACT MY REPS NOW →</a>
+    <button class="vic-btn gold" onclick="shareVictory()">🏆 SHARE MY VICTORY</button>
+    <button class="vic-btn ghost" onclick="retryGame()">▶ PLAY AGAIN</button>
+  </div>
+</div>
+
+<!-- PAUSE SCREEN -->
+<div class="scr off" id="pauseScr">
+  <div class="headline" style="font-size:56px;color:var(--gold);letter-spacing:2px;">PAUSED</div>
+  <div class="editorial" style="color:var(--muted);font-size:14px;margin:8px 0 24px;">The lobbyists are frozen. For now.</div>
+  <button class="btn-continue" onclick="togglePause()" style="margin-bottom:10px;">▶ RESUME</button>
+  <br/>
+  <button onclick="openLB()" style="background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.12);color:var(--cream);border-radius:10px;padding:12px 28px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;cursor:pointer;margin-top:10px;">🏆 LEADERBOARD</button>
+  <br/>
+  <button onclick="goMenu()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;margin-top:14px;text-decoration:underline;">← Quit to Menu</button>
+</div>
+
+<!-- LEADERBOARD PANEL -->
+<div id="lbPanel">
+  <div class="lb-title">🏆 STATE LEADERBOARD <button class="lb-close" onclick="closeLB()">✕</button></div>
+  <div id="lbList"></div>
+</div>
+<div id="overlay-darken" onclick="closeLB()"></div>
+
+</div><!-- /uiLayer -->
+
+<script>
+'use strict';
+/* ══════════════════════════════════════════════
+   CANVASES
+══════════════════════════════════════════════ */
+var bgC=document.getElementById('bgCanvas'),bgX=bgC.getContext('2d');
+var gC=document.getElementById('gameCanvas'),gX=gC.getContext('2d');
+var fC=document.getElementById('fxCanvas'),fX=fC.getContext('2d');
+var W,H;
+function resize(){
+  W=bgC.width=gC.width=fC.width=window.innerWidth;
+  H=bgC.height=gC.height=fC.height=window.innerHeight;
+  groundY=H-90;
+}
+window.addEventListener('resize',resize);
+var groundY;
+resize();
+
+/* ══════════════════════════════════════════════
+   AUDIO ENGINE
+══════════════════════════════════════════════ */
+var AC=null;
+function initAudio(){
+  if(AC) return;
+  try{AC=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}
+}
+function playTone(freq,type,dur,vol,start){
+  if(!AC) return;
+  var o=AC.createOscillator(),g=AC.createGain();
+  o.connect(g);g.connect(AC.destination);
+  o.type=type||'sine';o.frequency.value=freq;
+  g.gain.setValueAtTime(vol||0.3,AC.currentTime+(start||0));
+  g.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+(start||0)+(dur||0.2));
+  o.start(AC.currentTime+(start||0));
+  o.stop(AC.currentTime+(start||0)+(dur||0.2)+0.05);
+}
+function sfxCrush(pts){
+  initAudio();
+  playTone(200+pts*2,'sawtooth',0.1,0.4);
+  playTone(400+pts*3,'square',0.08,0.2,0.05);
+}
+function sfxMiss(){
+  initAudio();
+  playTone(120,'sawtooth',0.3,0.5);
+  playTone(80,'sine',0.25,0.3,0.15);
+}
+function sfxWeapon(){
+  initAudio();
+  playTone(600,'square',0.05,0.5);
+  playTone(900,'sine',0.1,0.3,0.05);
+  playTone(1200,'sine',0.08,0.2,0.1);
+}
+function sfxBoss(){
+  initAudio();
+  [100,90,80,70].forEach(function(f,i){playTone(f,'sawtooth',0.3,0.6,i*0.1);});
+}
+function sfxVictory(){
+  initAudio();
+  var notes=[523,659,784,1047];
+  notes.forEach(function(n,i){playTone(n,'sine',0.4,0.4,i*0.15);});
+}
+
+/* ══════════════════════════════════════════════
+   STATES
+══════════════════════════════════════════════ */
+var STATES=['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'];
+var selectedState='';
+
+function buildStateGrid(){
+  var g=document.getElementById('stateGrid');
+  STATES.forEach(function(s){
+    var b=document.createElement('button');
+    b.className='state-btn';b.textContent=s;
+    b.onclick=function(){
+      document.querySelectorAll('.state-btn').forEach(function(x){x.classList.remove('sel');});
+      b.classList.add('sel');selectedState=s;
+      document.getElementById('selLabel').textContent='Fighting for: '+s;
+      document.getElementById('playBtn').disabled=false;
+    };
+    g.appendChild(b);
+  });
+}
+buildStateGrid();
+
+/* ══════════════════════════════════════════════
+   LEADERBOARD (localStorage + seed data)
+══════════════════════════════════════════════ */
+var LB_KEY='1p_lb_v2';
+function getStateLB(){
+  try{return JSON.parse(localStorage.getItem(LB_KEY)||'{}');}catch(e){return{};}
+}
+function addToLB(state,score,crushed){
+  var lb=getStateLB();
+  if(!lb[state]){lb[state]={score:0,crushed:0,games:0};}
+  lb[state].score+=score;
+  lb[state].crushed+=crushed;
+  lb[state].games++;
+  localStorage.setItem(LB_KEY,JSON.stringify(lb));
+}
+function getLBSorted(){
+  var lb=getStateLB();
+  // Seed with base data so it looks populated
+  var seed={CA:48200,TX:41000,FL:38500,NY:36000,PA:28000,OH:24500,GA:22000,MI:21000,NC:19500,VA:18000,WA:17500,AZ:16000,CO:15500,IL:14000,TN:13000,MN:12500,WI:12000,NV:11500,OR:11000,MO:10500};
+  var merged={};
+  Object.keys(seed).forEach(function(s){merged[s]={score:seed[s],crushed:Math.floor(seed[s]/8)};});
+  Object.keys(lb).forEach(function(s){
+    if(!merged[s])merged[s]={score:0,crushed:0};
+    merged[s].score+=lb[s].score;
+    merged[s].crushed+=lb[s].crushed;
+  });
+  return Object.entries(merged).map(function(e){return{state:e[0],score:e[1].score,crushed:e[1].crushed};})
+    .sort(function(a,b){return b.score-a.score;});
+}
+function renderLB(){
+  var rows=getLBSorted().slice(0,20);
+  var html=rows.map(function(r,i){
+    var top=i<3;
+    var medals=['🥇','🥈','🥉'];
+    return '<div class="lb-row">'
+      +'<div class="lb-rank'+(top?' top':'')+'">'+( top?medals[i]:(i+1)+'.')+'</div>'
+      +'<div class="lb-state">'+r.state+(r.state===selectedState?' 👈':'')+'</div>'
+      +'<div><div class="lb-score">'+r.score.toLocaleString()+'</div><div class="lb-crushed">'+r.crushed.toLocaleString()+' crushed</div></div>'
+      +'</div>';
+  }).join('');
+  document.getElementById('lbList').innerHTML=html;
+}
+function openLB(){renderLB();document.getElementById('lbPanel').classList.add('up');document.getElementById('overlay-darken').style.display='block';}
+function closeLB(){document.getElementById('lbPanel').classList.remove('up');document.getElementById('overlay-darken').style.display='none';}
+
+/* ══════════════════════════════════════════════
+   STAGES
+══════════════════════════════════════════════ */
+var STAGES=[
+  {name:'K STREET',sky:['#080c14','#0d1a2a'],ground:'#0a1020',accent:'#1a3a5c',
+   desc:'LOBBYISTS INCOMING',boss:{name:'Rep. Phil R. Pockets',emoji:'🤵',pts:500,hp:20,speed:.6,size:90,attack:'money_rain',intro:'Your biggest donor just bought your vote.'},
+   enemies:[{e:'💰',pts:10,speed:.9,size:50,prob:.5,name:'Lobbyist'},{e:'🤑',pts:20,speed:.7,size:62,prob:.3,name:'Fat Cat'},{e:'💸',pts:15,speed:1.1,size:46,prob:.2,name:'Dark Money'}]},
+  {name:'WALL STREET',sky:['#08100a','#0d1f10'],ground:'#081208',accent:'#1a4020',
+   desc:'THE MARKET IS RIGGED',boss:{name:'CEO Val Greedy',emoji:'👔',pts:600,hp:25,speed:.55,size:95,attack:'stock_dump',intro:'He shorted your retirement fund. Again.'},
+   enemies:[{e:'🏦',pts:18,speed:.8,size:58,prob:.45,name:'Too Big To Fail'},{e:'📈',pts:22,speed:1.0,size:50,prob:.3,name:'Insider Trader'},{e:'💳',pts:12,speed:1.2,size:44,prob:.25,name:'Fee Extractor'}]},
+  {name:'BIG PHARMA',sky:['#12080a','#200d10'],ground:'#140608',accent:'#3a1020',
+   desc:'YOUR PAIN IS PROFITABLE',boss:{name:'Dr. Rex Pillsworth',emoji:'💊',pts:700,hp:30,speed:.5,size:100,attack:'pill_shower',intro:'He raised your insulin price 4000%. Enjoy.'},
+   enemies:[{e:'💉',pts:20,speed:.85,size:56,prob:.4,name:'Price Gouger'},{e:'🧪',pts:25,speed:.7,size:64,prob:.3,name:'Patent Troll'},{e:'💊',pts:15,speed:1.1,size:48,prob:.3,name:'Opioid Pusher'}]},
+  {name:'THE SENATE',sky:['#0a0814','#14102a'],ground:'#080614',accent:'#20103a',
+   desc:'DEMOCRACY IS FOR SALE',boss:{name:'Sen. Norm Aldorder',emoji:'🏛️',pts:800,hp:35,speed:.45,size:105,attack:'filibuster',intro:'He\'s been here 40 years. Nothing has changed.'},
+   enemies:[{e:'🗳️',pts:22,speed:.9,size:54,prob:.4,name:'Gerrymandering'},{e:'📜',pts:28,speed:.65,size:68,prob:.3,name:'Filibuster'},{e:'🎭',pts:18,speed:1.0,size:50,prob:.3,name:'Flip-Flopper'}]},
+  {name:'THE PENTAGON',sky:['#0a1408','#141f0d'],ground:'#080c06',accent:'#1a3010',
+   desc:'THE ENDLESS WAR MACHINE',boss:{name:'Gen. Buck Funnels',emoji:'⭐',pts:900,hp:40,speed:.4,size:110,attack:'missile_barrage',intro:'$800 billion a year. Not one homeless vet housed.'},
+   enemies:[{e:'💣',pts:25,speed:.8,size:58,prob:.4,name:'MIC Contractor'},{e:'🚀',pts:30,speed:1.2,size:52,prob:.3,name:'Arms Dealer'},{e:'🛢️',pts:20,speed:.9,size:60,prob:.3,name:'Oil Interest'}]},
+  {name:'THE SWAMP',sky:['#0a0808','#1a0a0a'],ground:'#0a0606',accent:'#3a1010',
+   desc:'THE FINAL CORRUPTION',boss:{name:'THE SWAMP MONSTER',emoji:'👹',pts:2000,hp:60,speed:.35,size:140,attack:'everything',intro:'It has no name. It is the system itself. FIGHT.'},
+   enemies:[{e:'🐍',pts:35,speed:1.3,size:52,prob:.35,name:'Snake'},{e:'🕷️',pts:30,speed:1.0,size:56,prob:.3,name:'Deep State'},{e:'🦅',pts:45,speed:1.5,size:48,prob:.2,name:'Captured Eagle'},{e:'🔒',pts:25,speed:.8,size:62,prob:.15,name:'Sealed Record'}]},
+];
+
+/* ══════════════════════════════════════════════
+   WEAPONS / SHOP
+══════════════════════════════════════════════ */
+var SHOP_ITEMS=[
+  {id:'gavel',name:'The Gavel',icon:'🔨',desc:'Area smash — crush everything in a radius',cost:80,cooldown:8000,type:'weapon'},
+  {id:'truth_bomb',name:'Truth Bomb',icon:'💥',desc:'Screen nuke — destroys ALL enemies instantly',cost:150,cooldown:20000,type:'weapon'},
+  {id:'megaphone',name:'Megaphone',icon:'📢',desc:'Slows all enemies 60% for 6 seconds',cost:100,cooldown:12000,type:'weapon'},
+  {id:'constitution',name:'The Constitution',icon:'📜',desc:'Shield — next 3 misses don\'t cost a life',cost:120,cooldown:25000,type:'weapon'},
+  {id:'eagle',name:'Eagle Strike',icon:'🦅',desc:'Targets and destroys the highest-value enemy',cost:90,cooldown:10000,type:'weapon'},
+  {id:'free_press',name:'Free Press',icon:'📰',desc:'Reveals hidden enemies and doubles points for 8s',cost:110,cooldown:15000,type:'weapon'},
+  {id:'whistleblower',name:'Whistleblower',icon:'🔔',desc:'Freezes ALL enemies for 5 seconds',cost:130,cooldown:18000,type:'weapon'},
+  {id:'ballot',name:'Ballot Box',icon:'🗳️',desc:'Converts one enemy into a power-up drop',cost:95,cooldown:14000,type:'weapon'},
+  {id:'mueller',name:'The Mueller Report',icon:'📋',desc:'WILD — deals massive damage to boss, stuns for 4s',cost:200,cooldown:30000,type:'weapon'},
+  {id:'executive',name:'Executive Order',icon:'🖊️',desc:'Eliminates ALL of one enemy type instantly',cost:175,cooldown:25000,type:'weapon'},
+];
+
+/* ══════════════════════════════════════════════
+   DEVASTATING EVENTS
+══════════════════════════════════════════════ */
+var EVENTS=[
+  {id:'signalgate',title:'⚠️ SIGNALGATE',msg:'Enemies warned via encrypted app. Speed +80% for 10 seconds.',effect:function(){eventSpeedMult=1.8;setTimeout(function(){eventSpeedMult=1;},10000);}},
+  {id:'barron_trade',title:'📈 BARRON\'S OIL TRADE',msg:'Insider info leaked. One enemy worth 10x points — if you can catch it.',effect:function(){var e=enemies[Math.floor(Math.random()*enemies.length)];if(e&&e.alive){e.pts*=10;e.golden=true;}}},
+  {id:'shadow_ban',title:'🌑 SHADOW BANNED',msg:'Your account has been suppressed. Screen darkens for 12 seconds.',effect:function(){shadowBan=true;setTimeout(function(){shadowBan=false;},12000);}},
+  {id:'gerrymandering',title:'🗺️ GERRYMANDERED',msg:'Your district was redrawn. Hit zone shrinks 40% for 8 seconds.',effect:function(){hitRadiusMult=0.6;setTimeout(function(){hitRadiusMult=1;},8000);}},
+  {id:'citizens_united',title:'⚖️ CITIZENS UNITED',msg:'Corporate cash floods in. Double enemies for 10 seconds.',effect:function(){spawnMult=2;setTimeout(function(){spawnMult=1;},10000);}},
+  {id:'filibuster',title:'🎭 FILIBUSTER IN PROGRESS',msg:'All weapons locked for 6 seconds. They\'re just... talking.',effect:function(){weaponLocked=true;setTimeout(function(){weaponLocked=false;},6000);}},
+  {id:'classified',title:'🔒 INFORMATION CLASSIFIED',msg:'Enemy positions hidden for 8 seconds. Stay sharp.',effect:function(){enemiesHidden=true;setTimeout(function(){enemiesHidden=false;},8000);}},
+  {id:'revolving_door',title:'🚪 REVOLVING DOOR',msg:'Former regulator joins enemy team. Spawn rate +50% permanently this wave.',effect:function(){spawnInterval=Math.max(300,spawnInterval-200);}},
+];
+
+/* ══════════════════════════════════════════════
+   LOSS HEADLINES
+══════════════════════════════════════════════ */
+var LOSS_HEADLINES=[
+  {ticker:'💀 BREAKING: CONGRESS OFFICIALLY PURCHASED',headline:'LOCAL REPRESENTATIVE SELLS DISTRICT\'S WATER RIGHTS TO PAC DONORS',byline:'Associated Corruption · Just Now · Page 1',body:'In what analysts are calling "inevitable," your congressperson finalized the sale of your municipality\'s water infrastructure to a private equity firm whose CEO donated <strong>$2.4 million</strong> to their campaign. Residents are advised to "buy bottled water or move."'},
+  {ticker:'⚠️ DEVELOPING: YOUR VOTE SUPPRESSED',headline:'REDISTRICTING PANEL REDRAWS YOUR NEIGHBORHOOD OUT OF EXISTENCE',byline:'The Daily Swamp · Breaking · Washington D.C.',body:'A late-night redistricting session — attended by <strong>zero</strong> of your elected officials — has placed your home in a new district represented by a congressman who has never visited your state. Your previous representative did not return calls.'},
+  {ticker:'🔒 CLASSIFIED: WHISTLEBLOWER SILENCED',headline:'CITIZEN WHO CONTACTED REPRESENTATIVES ADDED TO WATCHLIST',byline:'Shadow Government Gazette · Encrypted Edition',body:'Sources confirm that your attempt to drain the swamp has been <strong>flagged, classified, and forwarded</strong> to the relevant committees — where it will remain sealed for 75 years. The lobbyist you almost stopped has been promoted.'},
+  {ticker:'📈 MARKETS RESPOND: CORRUPTION AT ALL-TIME HIGH',headline:'WALL STREET CELEBRATES AS CONGRESS GUTS CONSUMER PROTECTION RULES',byline:'Financial Times of Corruption · 4:59 PM ET',body:'Markets surged <strong>340 points</strong> after Congress quietly removed the last protections against predatory lending, hidden fees, and insider trading by sitting members. "It\'s a great day for shareholders," said the senator who wrote the bill.'},
+  {ticker:'💊 HEALTH ALERT: YOUR MEDICATION NOW UNAFFORDABLE',headline:'PHARMACEUTICAL EXECUTIVES PURCHASE SENATE COMMITTEE, RAISE INSULIN PRICE 800%',byline:'Big Pharma Bulletin · Paid Placement',body:'Following a record-breaking lobbying quarter, the Senate Health Committee — <strong>chaired by a former pharma CEO</strong> — voted unanimously to extend drug patents. Patients are encouraged to "make sacrifices" or "try a GoFundMe."'},
+  {ticker:'🛢️ ENVIRONMENT DESTROYED: OIL WINS AGAIN',headline:'PROTECTED LANDS OPENED TO DRILLING HOURS AFTER CAMPAIGN FINANCE REPORT',byline:'Crude Truth News · Petroleum Edition',body:'Within <strong>72 hours</strong> of receiving $8.2 million in energy sector donations, a bipartisan group of senators voted to open 4 million acres of protected wilderness to drilling. The vote took place at 2 AM and was not announced in advance.'},
+  {ticker:'🐍 SIGNALGATE: THEY KNEW YOU WERE COMING',headline:'ENCRYPTED CHAT LOG REVEALS LOBBYISTS WARNED OF YOUR APPROACH',byline:'The Signal Leak · Unencrypted for Once',body:'A leaked group chat — accidentally including a journalist — shows lobbyists coordinating in real time to counter your activism. <strong>"The normies are waking up,"</strong> wrote one participant. "Double the donations. Now." The chat has since been deleted.'},
+  {ticker:'💰 DARK MONEY WINS: ELECTION ALREADY BOUGHT',headline:'SUPER PAC SPENDS $40M IN YOUR DISTRICT. YOU HAD $0.',byline:'Democracy Obituary · Final Edition',body:'A dark money group with no disclosed donors spent <strong>forty million dollars</strong> in the 72 hours before your election, flooding every screen with ads. The winning candidate has never held a town hall. Their largest donor is a Cayman Islands holding company.'},
+  {ticker:'🏦 TOO BIG TO FAIL: BAILOUT APPROVED',headline:'BANKS THAT CAUSED CRASH RECEIVE EMERGENCY FUNDS WHILE YOU LOSE HOUSE',byline:'The Bailout Beat · Taxpayer\'s Dime',body:'Congress approved a <strong>$900 billion emergency package</strong> for financial institutions that bet against the economy and won. Homeowners who lost their houses were offered "thoughts, prayers, and a 1-800 number." The banks have since resumed paying record bonuses.'},
+];
+
+/* ══════════════════════════════════════════════
+   GAME STATE
+══════════════════════════════════════════════ */
+var stageIdx=0, wave=1, score=0, lives=3, peoplePower=0;
+var crushed=0, missed=0, bestCombo=0, combo=0;
+var running=false, paused=false, bossActive=false;
+var enemies=[], particles=[], projectiles=[];
+var frameId=null, lastTime=0;
+var spawnTimer=0, spawnInterval=1500, waveTimer=0, WAVE_DUR=20000;
+var waveProgress=0;
+var eventTimer=0, EVENT_INTERVAL=15000;
+var eventSpeedMult=1, hitRadiusMult=1, spawnMult=1;
+var shadowBan=false, weaponLocked=false, enemiesHidden=false;
+var flashTimer=0, screenShake=0;
+var ownedWeapons={}, weaponCooldowns={}, shieldCharges=0;
+var freePressActive=false, slowActive=false;
+var bossHp=0, bossMaxHp=0;
+var lossHeadlineIdx=0;
+
+/* ══════════════════════════════════════════════
+   START / INIT
+══════════════════════════════════════════════ */
+function beginGame(){
+  initAudio();
+  stageIdx=0;wave=1;score=0;lives=3;peoplePower=0;
+  crushed=0;missed=0;bestCombo=0;combo=0;
+  ownedWeapons={};weaponCooldowns={};shieldCharges=0;
+  spawnInterval=1500;eventTimer=0;
+  enemies=[];particles=[];projectiles=[];
+  bossActive=false;shadowBan=false;weaponLocked=false;enemiesHidden=false;
+  eventSpeedMult=1;hitRadiusMult=1;spawnMult=1;
+  showScr(null);
+  startStage();
+}
+
+function startStage(){
+  var st=STAGES[stageIdx];
+  enemies=[];particles=[];projectiles=[];
+  waveTimer=0;spawnTimer=0;wave=1;bossActive=false;
+  waveProgress=0;eventTimer=0;
+  document.getElementById('hud').style.display='block';
+  document.getElementById('pauseBtn').style.display='block';
+  document.getElementById('weaponBar').style.display='flex';
+  fC.style.pointerEvents='all'; // enable hits
+  buildWeaponBar();
+  updateHUD();
+  running=true;paused=false;
+  showScr(null);
+  announce(st.name,st.desc,2500);
+  if(frameId) cancelAnimationFrame(frameId);
+  lastTime=0;
+  frameId=requestAnimationFrame(loop);
+}
+
+function retryGame(){showScr(null);beginGame();}
+function goMenu(){
+  running=false;if(frameId)cancelAnimationFrame(frameId);
+  fC.style.pointerEvents='none';
+  document.getElementById('hud').style.display='none';
+  document.getElementById('pauseBtn').style.display='none';
+  document.getElementById('weaponBar').style.display='none';
+  showScr('stateScr');
+}
+
+/* ══════════════════════════════════════════════
+   WEAPON BAR
+══════════════════════════════════════════════ */
+function buildWeaponBar(){
+  var bar=document.getElementById('weaponBar');
+  bar.innerHTML='';
+  SHOP_ITEMS.forEach(function(item,i){
+    if(!ownedWeapons[item.id]) return;
+    var slot=document.createElement('div');
+    slot.className='w-slot';slot.id='ws-'+item.id;
+    slot.innerHTML='<div class="w-icon">'+item.icon+'</div><div class="w-key">'+item.name.split(' ')[0].slice(0,4).toUpperCase()+'</div>';
+    slot.onclick=function(){useWeapon(item.id);};
+    bar.appendChild(slot);
+  });
+}
+
+function useWeapon(id){
+  if(!running||paused||weaponLocked) return;
+  var cd=weaponCooldowns[id]||0;
+  if(Date.now()<cd){showTicker('⏳ '+id+' RECHARGING…');return;}
+  var item=SHOP_ITEMS.find(function(x){return x.id===id;});
+  if(!item) return;
+  sfxWeapon();
+  weaponCooldowns[id]=Date.now()+item.cooldown;
+  startCooldownAnim(id,item.cooldown);
+
+  switch(id){
+    case 'gavel':
+      var cx=W/2,cy=H/2;
+      enemies.forEach(function(e){if(!e.alive)return;var dx=e.x-cx,dy=e.y-cy;if(Math.sqrt(dx*dx+dy*dy)<180)crushEnemy(e);});
+      showFloatText(W/2,H/2-60,'🔨 GAVEL SMASH!',var(--gold));
+      screenShake=15;
+      break;
+    case 'truth_bomb':
+      enemies.forEach(function(e){if(e.alive)crushEnemy(e);});
+      screenShake=25;flashTimer=0.6;
+      showFloatText(W/2,H/3,'💥 TRUTH BOMB!','#ffd166');
+      break;
+    case 'megaphone':
+      slowActive=true;setTimeout(function(){slowActive=false;},6000);
+      showFloatText(W/2,H/3,'📢 SLOW FIELD!','#2ec4b6');
+      break;
+    case 'constitution':
+      shieldCharges+=3;updateHUD();
+      showFloatText(W/2,H/3,'📜 SHIELDED x3!','#f0ead8');
+      break;
+    case 'eagle':
+      var best=null,bpts=-1;
+      enemies.forEach(function(e){if(e.alive&&e.pts>bpts){bpts=e.pts;best=e;}});
+      if(best){crushEnemy(best);showFloatText(best.x,best.y,'🦅 EAGLE STRIKE!','#f2a100');}
+      break;
+    case 'free_press':
+      freePressActive=true;setTimeout(function(){freePressActive=false;},8000);
+      showFloatText(W/2,H/3,'📰 FREE PRESS!','#ffd166');
+      break;
+    case 'whistleblower':
+      enemies.forEach(function(e){e.frozen=true;});
+      setTimeout(function(){enemies.forEach(function(e){e.frozen=false;});},5000);
+      showFloatText(W/2,H/3,'🔔 FROZEN!','#2ec4b6');
+      break;
+    case 'ballot':
+      var target=enemies.find(function(e){return e.alive;});
+      if(target){target.alive=false;peoplePower+=50;updateHUD();showFloatText(target.x,target.y,'+50 ⚡','#2ec4b6');}
+      break;
+    case 'mueller':
+      if(bossActive&&boss){boss.hp=Math.max(0,boss.hp-20);boss.stunned=true;setTimeout(function(){if(boss)boss.stunned=false;},4000);showFloatText(W/2,H/3,'📋 MUELLER REPORT!','#e63946');screenShake=20;}
+      else{enemies.slice(0,5).forEach(function(e){if(e.alive)crushEnemy(e);});}
+      break;
+    case 'executive':
+      if(enemies.length){var t=enemies.find(function(e){return e.alive;});if(t)enemies.forEach(function(e){if(e.alive&&e.emoji===t.emoji)crushEnemy(e);});}
+      showFloatText(W/2,H/3,'🖊️ EXECUTIVE ORDER!','#f2a100');
+      break;
+  }
+}
+
+function startCooldownAnim(id,dur){
+  var slot=document.getElementById('ws-'+id);
+  if(!slot) return;
+  var cd=document.createElement('div');cd.className='w-cd';slot.appendChild(cd);
+  var start=Date.now(),end=start+dur;
+  function tick(){
+    var rem=Math.ceil((end-Date.now())/1000);
+    if(rem<=0){cd.remove();return;}
+    cd.textContent=rem;requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+function var(v){return v;} // dummy for string template
+
+/* ══════════════════════════════════════════════
+   SPAWN
+══════════════════════════════════════════════ */
+var boss=null;
+function spawnEnemy(){
+  var st=STAGES[stageIdx];
+  var r=Math.random(),acc=0,type=st.enemies[0];
+  for(var i=0;i<st.enemies.length;i++){acc+=st.enemies[i].prob;if(r<acc){type=st.enemies[i];break;}}
+  var speedBase=type.speed*(1+(stageIdx*0.1))*(1+(wave-1)*0.08)*eventSpeedMult*(slowActive?0.4:1);
+  enemies.push({
+    x:type.size/2+Math.random()*(W-type.size),
+    y:-type.size,
+    size:type.size*(0.85+Math.random()*0.3),
+    speed:speedBase*(0.88+Math.random()*.25),
+    wobble:(Math.random()-.5)*.9,
+    wobblePhase:Math.random()*Math.PI*2,
+    emoji:type.e,pts:type.pts*(freePressActive?2:1),
+    name:type.name,rot:(Math.random()-.5)*.3,
+    alive:true,crushAnim:0,frozen:false,golden:false,
+    age:0,
+  });
+}
+
+function spawnBoss(){
+  var bd=STAGES[stageIdx].boss;
+  sfxBoss();
+  bossActive=true;
+  bossHp=bd.hp;bossMaxHp=bd.hp;
+  boss={
+    x:W/2,y:-bd.size,
+    size:bd.size,speed:bd.speed*(slowActive?0.4:1),
+    emoji:bd.emoji,pts:bd.pts,name:bd.name,
+    hp:bd.hp,maxHp:bd.hp,alive:true,
+    wobblePhase:0,rot:0,stunned:false,frozen:false,
+    attack:bd.attack,attackTimer:0,crushAnim:0,
+    intro:bd.intro,
+  };
+  enemies=[];
+  announce('⚠️ BOSS: '+bd.name,bd.intro,3000);
+}
+
+/* ══════════════════════════════════════════════
+   ENEMY CRUSH
+══════════════════════════════════════════════ */
+function crushEnemy(e){
+  if(!e||!e.alive) return;
+  e.alive=false;e.crushAnim=0;
+  var pts=e.pts;
+  combo++;if(combo>bestCombo)bestCombo=combo;
+  var mult=combo>=10?4:combo>=7?3:combo>=5?2:combo>=3?1.5:1;
+  pts=Math.round(pts*mult);
+  score+=pts;peoplePower+=Math.round(pts*0.15);
+  crushed++;
+  updateHUD();
+  sfxCrush(pts);
+  burst(e.x,e.y,e.golden?'#ffd166':'rgba(242,161,0,.9)',combo>=5?22:14);
+  if(combo>=3) burst(e.x,e.y,'rgba(255,255,255,.4)',8);
+  showFloatText(e.x,e.y,'+'+pts.toLocaleString()+(combo>=3?' ×'+combo:''),combo>=7?'#ff6b6b':combo>=5?'#ffd166':'#f2a100',combo>=5?30:22);
+  updateComboRing();
+}
+
+function missFired(e){
+  missed++;combo=0;updateComboRing();
+  if(shieldCharges>0){shieldCharges--;showTicker('🛡️ SHIELD ABSORBED HIT · '+shieldCharges+' remaining');updateHUD();return;}
+  lives=Math.max(0,lives-1);
+  flashTimer=1;screenShake=12;
+  sfxMiss();
+  updateHUD();
+  showTicker('💀 THEY GOT THROUGH · '+lives+' lives left');
+  if(lives<=0) setTimeout(triggerGameOver,400);
+}
+
+/* ══════════════════════════════════════════════
+   UPDATE
+══════════════════════════════════════════════ */
+function update(dt){
+  if(bossActive){updateBoss(dt);updateParticles(dt);updateProjectiles(dt);return;}
+
+  spawnTimer+=dt;waveTimer+=dt;waveProgress+=dt;eventTimer+=dt;
+
+  // Random events
+  if(eventTimer>=EVENT_INTERVAL&&Math.random()<0.35){
+    eventTimer=0;
+    var ev=EVENTS[Math.floor(Math.random()*EVENTS.length)];
+    showTicker(ev.title+' · '+ev.msg);
+    ev.effect();
+  }
+
+  var count=Math.round(spawnMult);
+  for(var c=0;c<count;c++){
+    if(spawnTimer>=spawnInterval){
+      spawnTimer=0;spawnEnemy();
+      if(wave>3&&Math.random()<0.3) spawnEnemy();
+    }
+  }
+  if(spawnMult>1) spawnTimer+=dt; // prevent double-tick
+
+  // Wave advance
+  if(waveTimer>=WAVE_DUR){
+    waveTimer=0;wave++;
+    spawnInterval=Math.max(350,spawnInterval-80);
+    if(wave>4){
+      // Trigger boss
+      spawnBoss();return;
+    }
+    announce('WAVE '+wave,'THEY\'RE POURING IN',1800);
+    updateHUD();
+  }
+
+  // Update enemies
+  enemies.forEach(function(e){
+    if(!e.alive){e.crushAnim=Math.min(1,e.crushAnim+dt/130);return;}
+    if(e.frozen) return;
+    e.age+=dt;
+    e.wobblePhase+=dt*.003;
+    e.y+=e.speed*(dt/16)*eventSpeedMult*(slowActive?0.4:1);
+    e.x+=Math.sin(e.wobblePhase)*e.wobble;
+    e.x=Math.max(e.size/2,Math.min(W-e.size/2,e.x));
+    if(e.y>=groundY-e.size*.25){e.alive=false;missFired(e);}
+  });
+  enemies=enemies.filter(function(e){return e.alive||(e.crushAnim<1);});
+
+  updateParticles(dt);
+  if(flashTimer>0) flashTimer=Math.max(0,flashTimer-dt*.004);
+  if(screenShake>0) screenShake=Math.max(0,screenShake-dt*.15);
+}
+
+/* ══════════════════════════════════════════════
+   BOSS UPDATE
+══════════════════════════════════════════════ */
+function updateBoss(dt){
+  if(!boss||!boss.alive) return;
+  if(!boss.frozen&&!boss.stunned){
+    boss.y+=boss.speed*(dt/16);
+    boss.wobblePhase+=dt*.002;
+    boss.x=W/2+Math.sin(boss.wobblePhase)*80;
+  }
+  boss.attackTimer+=dt;
+  if(boss.attackTimer>3500&&!boss.stunned){
+    boss.attackTimer=0;
+    switch(boss.attack){
+      case 'money_rain':for(var i=0;i<3;i++)spawnEnemy();break;
+      case 'stock_dump':flashTimer=.4;break;
+      case 'pill_shower':for(var i=0;i<4;i++)spawnEnemy();break;
+      case 'filibuster':weaponLocked=true;setTimeout(function(){weaponLocked=false;},4000);showTicker('🎭 FILIBUSTER · Weapons locked 4s');break;
+      case 'missile_barrage':screenShake=20;for(var i=0;i<2;i++)spawnEnemy();break;
+      case 'everything':screenShake=15;for(var i=0;i<3;i++)spawnEnemy();if(Math.random()<.5){lives=Math.max(0,lives-1);flashTimer=.8;updateHUD();}break;
+    }
+  }
+  if(boss.y>=groundY-boss.size*.2&&boss.alive){
+    // Boss reaches ground
+    boss.alive=false;
+    lives=Math.max(0,lives-2);flashTimer=1;screenShake=25;
+    sfxMiss();updateHUD();
+    if(lives<=0){setTimeout(triggerGameOver,400);}
+    else{bossActive=false;boss=null;openShop();}
+  }
+  updateParticles(dt);
+  if(flashTimer>0)flashTimer=Math.max(0,flashTimer-dt*.004);
+  if(screenShake>0)screenShake=Math.max(0,screenShake-dt*.12);
+}
+
+function updateParticles(dt){
+  particles.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.vy+=.12;p.life=Math.max(0,p.life-p.decay);});
+  particles=particles.filter(function(p){return p.life>0;});
+}
+function updateProjectiles(dt){
+  projectiles=projectiles.filter(function(p){return p.life>0;});
+}
+
+/* ══════════════════════════════════════════════
+   DRAW
+══════════════════════════════════════════════ */
+var starField=[];
+(function(){for(var i=0;i<60;i++)starField.push({x:Math.random(),y:Math.random(),r:.4+Math.random()*.8,t:Math.random()*Math.PI*2});})();
+
+function drawBG(){
+  var st=STAGES[stageIdx];
+  var grad=bgX.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,st.sky[0]);grad.addColorStop(1,st.sky[1]);
+  bgX.fillStyle=grad;bgX.fillRect(0,0,W,H);
+  // Stars
+  var now=Date.now()*.001;
+  starField.forEach(function(s){
+    var alpha=.1+Math.sin(s.t+now)*.1;
+    bgX.beginPath();bgX.arc(s.x*W,s.y*H*.85,s.r,0,Math.PI*2);
+    bgX.fillStyle='rgba(240,234,216,'+alpha+')';bgX.fill();
+  });
+  // Capitol
+  drawCapitol(bgX);
+  // Stage progress bar on ground
+  bgX.fillStyle='rgba(242,161,0,.15)';
+  bgX.fillRect(0,groundY,W*(waveProgress/(WAVE_DUR*4)),3);
+}
+
+function drawCapitol(ctx){
+  var cx=W/2,gy=groundY;
+  ctx.fillStyle=STAGES[stageIdx].ground;
+  ctx.fillRect(0,gy,W,H-gy);
+  // Capitol silhouette — damaged based on lives lost
+  var dmg=(3-lives)/3;
+  ctx.fillStyle=STAGES[stageIdx].accent;
+  // Body
+  ctx.fillRect(cx-100,gy-45,200,45);
+  // Dome
+  ctx.beginPath();ctx.arc(cx,gy,65,Math.PI,0);ctx.fill();
+  // Crack effect when damaged
+  if(dmg>0){
+    ctx.strokeStyle='rgba(230,57,70,'+dmg*.6+')';
+    ctx.lineWidth=2;ctx.beginPath();
+    ctx.moveTo(cx+20,gy-20);ctx.lineTo(cx+35,gy-55);ctx.lineTo(cx+25,gy-40);ctx.lineTo(cx+45,gy-70);
+    ctx.stroke();
+  }
+  // Pillars
+  ctx.fillStyle=STAGES[stageIdx].ground;
+  for(var i=0;i<7;i++) ctx.fillRect(cx-90+i*30,gy-35,10,35);
+  // Flagpole
+  ctx.fillStyle=lives>1?'#2ec4b6':'#e63946';
+  ctx.fillRect(cx-2,gy-95,4,60);
+  ctx.fillStyle=lives>1?'rgba(46,196,182,.8)':'rgba(230,57,70,.8)';
+  ctx.fillRect(cx+2,gy-95,22,14);
+  // Ground line
+  ctx.fillStyle='rgba(242,161,0,.12)';
+  ctx.fillRect(0,gy,W,2);
+  // Label
+  ctx.font='bold 10px Bebas Neue,sans-serif';
+  ctx.fillStyle='rgba(242,161,0,.25)';
+  ctx.textAlign='center';ctx.fillText('CONGRESS · '+STAGES[stageIdx].name,cx,gy+20);
+}
+
+function drawGame(){
+  gX.clearRect(0,0,W,H);
+  if(screenShake>0){
+    gX.save();
+    var sx=(Math.random()-.5)*screenShake,sy=(Math.random()-.5)*screenShake;
+    gX.translate(sx,sy);
+  }
+  // Shadow ban effect
+  if(shadowBan){
+    gX.save();gX.fillStyle='rgba(0,0,0,.65)';gX.fillRect(0,0,W,H);gX.restore();
+  }
+  // Enemies
+  enemies.forEach(function(e){drawEnemy(gX,e);});
+  // Boss
+  if(bossActive&&boss) drawBoss(gX);
+  // Particles
+  drawParticles(gX);
+  // Flash
+  if(flashTimer>0){gX.fillStyle='rgba(230,57,70,'+flashTimer*.3+')';gX.fillRect(0,0,W,H);}
+  // Boss HP bar
+  if(bossActive&&boss&&boss.alive){
+    var bw=Math.min(W-40,360),bx=(W-bw)/2;
+    gX.fillStyle='rgba(0,0,0,.6)';gX.fillRect(bx,55,bw,14);
+    gX.fillStyle='#e63946';gX.fillRect(bx,55,bw*(boss.hp/boss.maxHp),14);
+    gX.fillStyle='rgba(255,255,255,.15)';gX.fillRect(bx,55,bw,1);
+    gX.font='bold 10px Bebas Neue,sans-serif';gX.fillStyle='#fff';gX.textAlign='center';
+    gX.fillText(boss.name+' · '+boss.hp+'/'+boss.maxHp+' HP',W/2,67);
+  }
+  if(screenShake>0) gX.restore();
+}
+
+function drawEnemy(ctx,e){
+  if(!e.alive&&e.crushAnim<=0) return;
+  ctx.save();
+  ctx.translate(e.x,e.y);
+  ctx.rotate(e.rot+(e.alive?Math.sin(e.wobblePhase)*.05:0));
+  var sc=e.alive?1:(1-e.crushAnim*.5);
+  var sq=e.alive?1:(1+e.crushAnim*.4);
+  ctx.scale(sc,sc*sq);
+  if(!e.alive) ctx.globalAlpha=1-e.crushAnim;
+  if(enemiesHidden&&!freePressActive&&e.alive) ctx.globalAlpha=.15;
+  if(e.golden){
+    ctx.shadowColor='#ffd166';ctx.shadowBlur=20;
+  }
+  ctx.font=e.size+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(e.emoji,0,0);
+  // Danger pulse
+  if(e.alive&&e.y>groundY-150){
+    var d=(e.y-(groundY-150))/150;
+    ctx.strokeStyle='rgba(230,57,70,'+d*.7+')';ctx.lineWidth=3;
+    ctx.beginPath();ctx.arc(0,0,e.size*.55+Math.sin(Date.now()*.01)*5,0,Math.PI*2);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawBoss(ctx){
+  if(!boss.alive){return;}
+  ctx.save();
+  ctx.translate(boss.x,boss.y);
+  ctx.rotate(Math.sin(boss.wobblePhase)*.08);
+  if(boss.stunned){ctx.globalAlpha=.5+Math.sin(Date.now()*.02)*.3;}
+  ctx.shadowColor='#e63946';ctx.shadowBlur=40;
+  ctx.font=boss.size+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(boss.emoji,0,0);
+  // Boss name
+  ctx.shadowBlur=0;ctx.globalAlpha=1;
+  ctx.font='bold 14px Bebas Neue,sans-serif';
+  ctx.fillStyle='#e63946';ctx.textAlign='center';
+  ctx.fillText('⚠️ '+boss.name,0,boss.size*.55+20);
+  ctx.restore();
+}
+
+function drawParticles(ctx){
+  particles.forEach(function(p){
+    ctx.save();ctx.globalAlpha=p.life;ctx.fillStyle=p.color;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r*p.life,0,Math.PI*2);ctx.fill();ctx.restore();
+  });
+}
+
+function burst(x,y,color,n){
+  for(var i=0;i<n;i++){
+    var a=Math.random()*Math.PI*2,s=2+Math.random()*5;
+    particles.push({x:x,y:y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-2,r:2+Math.random()*5,color:color,life:1,decay:.025+Math.random()*.025});
+  }
+}
+
+/* ══════════════════════════════════════════════
+   GAME LOOP
+══════════════════════════════════════════════ */
+function loop(ts){
+  if(!running||paused) return;
+  var dt=lastTime?Math.min(ts-lastTime,60):16;lastTime=ts;
+  bgX.clearRect(0,0,W,H);
+  drawBG();
+  update(dt);
+  drawGame();
+  frameId=requestAnimationFrame(loop);
+}
+
+/* ══════════════════════════════════════════════
+   HIT DETECTION
+══════════════════════════════════════════════ */
+function handleHit(cx,cy){
+  if(!running||paused) return;
+  initAudio();
+  // Boss hit
+  if(bossActive&&boss&&boss.alive){
+    var dx=cx-boss.x,dy=cy-boss.y;
+    if(Math.sqrt(dx*dx+dy*dy)<boss.size*.5){
+      boss.hp--;bossHp=boss.hp;
+      sfxCrush(50);
+      burst(boss.x,boss.y,'rgba(230,57,70,.9)',10);
+      screenShake=8;
+      showFloatText(boss.x,boss.y-20,'HIT! '+boss.hp+' HP left','#e63946');
+      if(boss.hp<=0){
+        boss.alive=false;
+        sfxVictory();
+        screenShake=30;flashTimer=.8;
+        burst(boss.x,boss.y,'#ffd166',40);burst(boss.x,boss.y,'rgba(255,255,255,.6)',20);
+        score+=STAGES[stageIdx].boss.pts;peoplePower+=150;
+        crushed++;updateHUD();
+        setTimeout(function(){
+          bossActive=false;boss=null;
+          if(stageIdx>=STAGES.length-1){triggerVictory();}
+          else{openShop();}
+        },1500);
+      }
+      return;
+    }
+  }
+  // Enemy hit
+  var hit=false;
+  for(var i=enemies.length-1;i>=0;i--){
+    var e=enemies[i];if(!e.alive) continue;
+    var dx=cx-e.x,dy=cy-e.y;
+    if(Math.sqrt(dx*dx+dy*dy)<e.size*hitRadiusMult*.55){
+      crushEnemy(e);hit=true;break;
+    }
+  }
+  if(!hit){combo=0;updateComboRing();}
+}
+
+fC.addEventListener('click',function(ev){handleHit(ev.clientX,ev.clientY);});
+fC.addEventListener('touchstart',function(ev){
+  ev.preventDefault();
+  Array.from(ev.changedTouches).forEach(function(t){handleHit(t.clientX,t.clientY);});
+},{passive:false});
+fC.style.pointerEvents='none'; // only enable during gameplay
+
+/* ══════════════════════════════════════════════
+   SHOP
+══════════════════════════════════════════════ */
+function openShop(){
+  running=false;
+  document.getElementById('hud').style.display='none';
+  document.getElementById('pauseBtn').style.display='none';
+  document.getElementById('weaponBar').style.display='none';
+  document.getElementById('shopPower').textContent='⚡ '+peoplePower+' People\'s Power';
+  buildShopGrid();
+  showScr('shopScr');
+}
+
+function buildShopGrid(){
+  var g=document.getElementById('shopGrid');
+  g.innerHTML='';
+  SHOP_ITEMS.forEach(function(item){
+    var owned=ownedWeapons[item.id];
+    var afford=peoplePower>=item.cost;
+    var div=document.createElement('div');
+    div.className='shop-item'+(owned?' owned':(!afford?' cant-afford':''));
+    div.innerHTML='<div class="shop-icon">'+item.icon+'</div>'
+      +'<div class="shop-name">'+item.name+'</div>'
+      +'<div class="shop-desc">'+item.desc+'</div>'
+      +'<div class="shop-cost'+(owned?' owned':'')+'">'+( owned?'✓ OWNED':'⚡ '+item.cost)+'</div>';
+    if(!owned&&afford){
+      div.onclick=function(){buyItem(item.id);};
+    }
+    g.appendChild(div);
+  });
+}
+
+function buyItem(id){
+  var item=SHOP_ITEMS.find(function(x){return x.id===id;});
+  if(!item||peoplePower<item.cost) return;
+  peoplePower-=item.cost;
+  ownedWeapons[id]=true;
+  document.getElementById('shopPower').textContent='⚡ '+peoplePower+' People\'s Power';
+  buildShopGrid();
+}
+
+function continueToNextStage(){
+  stageIdx++;
+  if(stageIdx>=STAGES.length){triggerVictory();return;}
+  lives=Math.min(5,lives+1); // bonus life between stages
+  startStage();
+}
+
+/* ══════════════════════════════════════════════
+   GAME OVER
+══════════════════════════════════════════════ */
+function triggerGameOver(){
+  running=false;
+  addToLB(selectedState,score,crushed);
+  document.getElementById('hud').style.display='none';
+  document.getElementById('pauseBtn').style.display='none';
+  document.getElementById('weaponBar').style.display='none';
+  // Pick loss headline
+  var hl=LOSS_HEADLINES[lossHeadlineIdx%LOSS_HEADLINES.length];
+  lossHeadlineIdx++;
+  var stage=STAGES[stageIdx];
+  var bossName=bossActive&&boss?boss.name:stage.boss.name;
+  document.getElementById('lossTicker').textContent='⚠️ BREAKING — '+stage.name+' FALLS TO CORRUPTION';
+  document.getElementById('lossHeadline').textContent=hl.headline;
+  document.getElementById('lossByline').textContent=hl.byline+' · Defeated on '+stage.name+' by '+bossName;
+  document.getElementById('lossBody').innerHTML=hl.body;
+  document.getElementById('lsScore').textContent=score.toLocaleString();
+  document.getElementById('lsWave').textContent=wave;
+  document.getElementById('lsCrushed').textContent=crushed;
+  document.getElementById('lsCombo').textContent=bestCombo+'x';
+  showScr('lossScr');
+}
+
+/* ══════════════════════════════════════════════
+   VICTORY
+══════════════════════════════════════════════ */
+function triggerVictory(){
+  running=false;
+  addToLB(selectedState,score,crushed);
+  sfxVictory();
+  document.getElementById('hud').style.display='none';
+  document.getElementById('pauseBtn').style.display='none';
+  document.getElementById('weaponBar').style.display='none';
+  document.getElementById('vicState').textContent=selectedState+' — DEFENDER OF THE REPUBLIC';
+  document.getElementById('vicStats').textContent='Score: '+score.toLocaleString()+' · '+crushed+' enemies crushed · Best combo: '+bestCombo+'x';
+  showScr('victoryScr');
+  // Victory particle rain
+  for(var i=0;i<8;i++) setTimeout(function(){
+    burst(Math.random()*W,Math.random()*H*.5,'#ffd166',25);
+    burst(Math.random()*W,Math.random()*H*.5,'rgba(46,196,182,.8)',15);
+  },i*300);
+}
+
+/* ══════════════════════════════════════════════
+   SHARE
+══════════════════════════════════════════════ */
+function shareScore(){
+  var text=selectedState+' CITIZEN SCORES '+score.toLocaleString()+' on Drain the Swamp 🏛️💀\nWave '+wave+' · '+crushed+' lobbyists crushed · Best combo: '+bestCombo+'x\n\nPlay + fight for real at 1Promise:';
+  if(navigator.share) navigator.share({title:'Drain the Swamp',text:text,url:location.href}).catch(function(){});
+  else navigator.clipboard.writeText(text+'\n'+location.href).then(function(){showTicker('🔗 Score copied — challenge your friends!');});
+}
+function shareVictory(){
+  var text='🏆 I DRAINED THE SWAMP! Playing for '+selectedState+' · Score: '+score.toLocaleString()+' · '+crushed+' corrupt enemies crushed.\n\nNow I\'m doing it for real — contacting my actual representatives. Join me:';
+  if(navigator.share) navigator.share({title:'1Promise — Victory',text:text,url:'index.html'}).catch(function(){});
+  else navigator.clipboard.writeText(text+'\n'+location.href.replace('game.html','index.html')).then(function(){showTicker('🔗 Copied — share your victory!');});
+}
+
+/* ══════════════════════════════════════════════
+   UI HELPERS
+══════════════════════════════════════════════ */
+function showScr(id){
+  document.querySelectorAll('.scr').forEach(function(s){s.classList.add('off');});
+  if(id) document.getElementById(id).classList.remove('off');
+}
+
+function updateHUD(){
+  document.getElementById('hudScore').textContent=score.toLocaleString();
+  document.getElementById('hudPower').textContent=peoplePower;
+  document.getElementById('hudWave').textContent=wave;
+  var h='';for(var i=0;i<3;i++) h+=i<lives?'❤️':(shieldCharges>0&&i<lives+shieldCharges?'🛡️':'🖤');
+  document.getElementById('hudHearts').textContent=h||'💀';
+  document.getElementById('stageLabel').textContent=STAGES[stageIdx].name+' · WAVE '+wave;
+  document.getElementById('stageFill').style.width=(stageIdx/(STAGES.length-1)*100)+'%';
+}
+
+var tickerTimeout=null;
+function showTicker(msg){
+  var t=document.getElementById('ticker');
+  t.innerHTML='<div class="ticker-inner">'+msg+'</div>';
+  t.style.display='flex';
+  clearTimeout(tickerTimeout);
+  tickerTimeout=setTimeout(function(){t.style.display='none';},4000);
+}
+
+function announce(title,sub,dur){
+  var a=document.getElementById('announcer');
+  document.getElementById('annTitle').textContent=title;
+  document.getElementById('annSub').textContent=sub;
+  a.classList.add('show');
+  setTimeout(function(){a.classList.remove('show');},dur||2000);
+}
+
+function showFloatText(x,y,text,color,size){
+  var el=document.createElement('div');
+  el.className='float-txt';
+  el.style.cssText='left:'+x+'px;top:'+y+'px;color:'+(color||'#f2a100')+';font-size:'+(size||22)+'px;transform:translate(-50%,-50%);';
+  el.textContent=text;
+  document.getElementById('uiLayer').appendChild(el);
+  setTimeout(function(){el.remove();},900);
+}
+
+var comboTimeout=null;
+function updateComboRing(){
+  var ring=document.getElementById('comboRing');
+  if(combo<2){ring.style.opacity='0';return;}
+  ring.style.opacity='1';
+  var label=combo>=10?'🔥 UNSTOPPABLE':combo>=7?'⚡ ON FIRE':combo>=5?'💥 CRUSHING IT':'✨ COMBO';
+  ring.innerHTML='<div class="combo-txt">'+label+' ×'+combo+'</div><div class="combo-sub">'+Math.round((combo>=10?4:combo>=7?3:combo>=5?2:1.5)+'')+'× MULTIPLIER ACTIVE</div>';
+  clearTimeout(comboTimeout);
+  comboTimeout=setTimeout(function(){combo=0;ring.style.opacity='0';},3500);
+}
+
+function togglePause(){
+  if(!running&&!paused) return;
+  paused=!paused;
+  document.getElementById('pauseBtn').textContent=paused?'▶':'⏸';
+  if(paused){showScr('pauseScr');document.getElementById('hud').style.display='block';}
+  else{showScr(null);document.getElementById('hud').style.display='block';document.getElementById('weaponBar').style.display='flex';lastTime=0;frameId=requestAnimationFrame(loop);}
+}
+
+window.addEventListener('keydown',function(e){
+  if(e.key==='Escape'||e.key==='p'||e.key==='P') togglePause();
+  if(e.key==='l'||e.key==='L') openLB();
+});
+
+// Keep background drawing even on shop/loss screens
+function bgLoop(){
+  bgX.clearRect(0,0,W,H);
+  drawBG();
+  requestAnimationFrame(bgLoop);
+}
+bgLoop();
+</script>
+</body>
+</html>
